@@ -5,7 +5,9 @@ module.exports = merge(baseConfig, {
   devServer: {
     port: 3000,
     open: true,
-    publicPath: '/',
+    proxy: {
+      '/': 'http://localhost:5000',
+    },
     historyApiFallback: true,
     disableHostCheck: true,
   },

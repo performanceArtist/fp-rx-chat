@@ -1,0 +1,21 @@
+.chat {
+  width: 43rem;
+
+  &__messages {
+    display: flex;
+    flex-direction: column;
+  }
+
+  &__input-container {
+    margin-top: 2rem;
+    padding: 1rem;
+    border: 1px solid gray;
+    border-radius: 0.2rem;
+  }
+
+  &__input {
+    padding: 0.5rem;
+    background: inherit;
+    border: none;
+  }
+}

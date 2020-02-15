@@ -6,7 +6,7 @@ import { createHandler } from '../utils';
 import { socketMessage, SocketMessage } from './types/socket';
 
 export function createSocketClient(url: string) {
-  const [data$, next] = createHandler<SocketMessage>();
+  const [data$, handleMessage] = createHandler<SocketMessage>();
   const socket = new Socket<SocketMessage, 'message'>();
   const io = new SocketIOInterface<SocketMessage, 'message'>(url);
 
@@ -15,7 +15,7 @@ export function createSocketClient(url: string) {
     const message = socketMessage.decode(data);
 
     if (isRight(message)) {
-      next(message.right);
+      handleMessage(message.right);
     } else {
       console.log('Unknown message:', message.left);
     }

@@ -1,73 +1,67 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, memo } from 'react';
 import { Route, Switch, HashRouter, Redirect } from 'react-router-dom';
 
-import { Request, isPending, isSuccess } from 'api/request';
-
-import { PrivateRoute } from 'ui/PrivateRoute/PrivateRoute';
-import { Preloader } from 'ui/Preloader/Preloader';
-import { LoginContainer } from './view/Login/LoginContainer';
-import { LogoutContainer } from './view/Logout/LogoutContainer';
 import { combineReaders } from 'utils';
+import { User } from 'models/user';
+import { AuthStatus } from 'models/auth';
+import { Request, isPending, isSuccess } from 'api/request';
+import { makePrivateRoute } from 'ui/PrivateRoute/PrivateRoute';
+import { Preloader } from 'ui/Preloader/Preloader';
 
-type User = any;
+import { Layout } from './view/Layout/Layout';
+import { LoginContainer } from './view/Login/LoginContainer';
+import { HomeContainer } from './view/Home/HomeContainer';
+import { ProfileContainer } from './view/Profile/ProfileContainer';
 
 type Props = {
-  checkAuth: () => void;
-  userData: Request<User>;
+  authStatus: AuthStatus;
+  getUser: () => void;
+  user: Request<User>;
 };
 
-type LoginStatus = 'unknown' | 'login' | 'logout';
+const App = combineReaders(
+  LoginContainer,
+  Layout,
+  HomeContainer,
+  ProfileContainer,
+  (Login, Layout, Home, Profile) => {
+    return memo((props: Props) => {
+      const { getUser, user, authStatus } = props;
 
-const App = combineReaders(LoginContainer, LogoutContainer, (Login, Logout) => {
-  return (props: Props) => {
-    const { checkAuth, userData } = props;
-    const [loginStatusChanged, setLoginStatusChanged] = useState<LoginStatus>(
-      'unknown',
-    );
+      useEffect(() => {
+        getUser();
+      }, [authStatus]);
 
-    useEffect(() => {
-      checkAuth();
-    }, [loginStatusChanged]);
+      if (isPending(user)) {
+        return <Preloader />;
+      }
 
-    if (isPending(userData)) {
-      return <Preloader />;
-    }
+      const hasAuthenticated = isSuccess(user);
+      const PrivateRoute = makePrivateRoute(hasAuthenticated, '/login');
+      const routes = (
+        <Switch>
+          <PrivateRoute
+            exact
+            path="/"
+            component={() => (
+              <Layout>
+                <Home />
+              </Layout>
+            )}
+          />
+          <PrivateRoute
+            path="/profile"
+            component={Profile}
+          />
+          {hasAuthenticated && <Redirect to="/" />}
+          <Route path="/login" component={Login} />
+          <Route path="*" component={() => <h2>404</h2>} />
+        </Switch>
+      );
 
-    const routes = (
-      <Switch>
-        <PrivateRoute
-          exact
-          isAuthenticated={isSuccess(userData)}
-          path="/"
-          component={() => (
-            <div>
-              <h2>Profile</h2>
-              <Logout onLogoutSuccess={() => setLoginStatusChanged('logout')} />
-            </div>
-          )}
-        />
-        <PrivateRoute
-          isAuthenticated={isSuccess(userData)}
-          path="/chat"
-          component={() => <h2>Chat</h2>}
-        />
-        {isSuccess(userData) && <Redirect to="/" />}
-        <Route
-          path="/login"
-          component={() => (
-            <Login
-              onLoginSuccess={() => {
-                setLoginStatusChanged('login');
-              }}
-            />
-          )}
-        />
-        <Route path="*" component={() => <h2>404</h2>} />
-      </Switch>
-    );
-
-    return <HashRouter>{routes}</HashRouter>;
-  };
-});
+      return <HashRouter>{routes}</HashRouter>;
+    });
+  },
+);
 
 export { App };

@@ -1,26 +1,27 @@
 import { ask } from 'fp-ts/lib/Reader';
 
 import { combineReaders, withStreams } from 'utils';
-import { ApiInstance } from 'deps';
 import { pending } from 'api/request';
-import { createUserModel } from 'models/user';
+import { UserModel } from 'models/user';
+import { AuthModel } from 'models/auth';
 
 import { App } from './App';
 
 export const AppContainer = combineReaders(
-  ask<ApiInstance>(),
+  ask<UserModel>(),
+  ask<AuthModel>(),
   App,
-  ({ api }, App) => {
+  (UserModel, AuthModel, App) => {
     return withStreams(App)(() => {
-      const { authHandle, authCheck$ } = createUserModel({ api });
-
       return {
         defaultProps: {
-          userData: pending(),
-          checkAuth: authHandle
+          authStatus: 'unknown',
+          user: pending(),
+          getUser: UserModel.getUser,
         },
         streams: {
-          userData: authCheck$,
+          authStatus: AuthModel.authStatus$,
+          user: UserModel.user$,
         },
       };
     });

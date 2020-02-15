@@ -8,7 +8,11 @@ import * as Either from 'fp-ts/lib/Either';
 import { map, mapLeft } from 'fp-ts/lib/TaskEither';
 import { pipe } from 'fp-ts/lib/pipeable';
 
-import { UserScheme, withUserScheme, comparePasswords } from '../model/entities/user';
+import {
+  UserScheme,
+  withUserScheme,
+  comparePasswords,
+} from '../model/entities/user';
 
 passport.use(
   new LocalStrategy(
@@ -45,7 +49,7 @@ passport.serializeUser((user, done) => {
 passport.deserializeUser((uid: string, done) => {
   pipe(
     withUserScheme.selectOne({ uid }),
-    map(user => done(null, user)),
+    map(({ id, username, avatar }) => done(null, { id, username, avatar })),
     mapLeft(error => done(error)),
   )();
 });
@@ -56,7 +60,6 @@ export const useAuth = (app: Express) => {
       secret: 'kek pok',
       cookie: {
         secure: false,
-        domain: 'dev.com',
       },
       store: new FileStore({ path: 'src/model/sessions' }),
       resave: false,
@@ -82,6 +85,8 @@ export const useAuth = (app: Express) => {
     req.logout();
     res.sendStatus(200);
   });
+
+  app.use(checkAuth);
 };
 
 export const checkAuth = (req: Request, res: Response, next: NextFunction) => {

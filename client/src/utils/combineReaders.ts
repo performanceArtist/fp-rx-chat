@@ -15,6 +15,13 @@ interface CombineReaders {
     c: Reader<C, RC>,
     project: (a: RA, b: RB, c: RC) => R,
   ): Reader<A & B & C, R>;
+  <A, RA, B, RB, C, RC, D, RD, R>(
+    a: Reader<A, RA>,
+    b: Reader<B, RB>,
+    c: Reader<C, RC>,
+    d: Reader<D, RD>,
+    project: (a: RA, b: RB, c: RC, d: RD) => R,
+  ): Reader<A & B & C & D, R>;
 }
 
 type Project = (...args: any[]) => any;

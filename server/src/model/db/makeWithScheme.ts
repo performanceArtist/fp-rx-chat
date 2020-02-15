@@ -25,14 +25,24 @@ const makeDBQuery = (query: string, params: any[], once = false) => {
 };
 
 const makeWhereString = (where: { [key: string]: any }) => {
-  return Object.keys(where)
-    .map(key => `${key}=?`)
+  return Object.entries(where)
+    .map(([key, value], index) =>
+      Array.isArray(value)
+        ? index === 0
+          ? `${key} IN(${value.join(',')})`
+          : `AND ${key} IN(${value.join(',')})`
+        : `${key}=?`,
+    )
     .join(',');
 };
 
-const makeWithSQL = <T extends TypeC<any>>(scheme: T, table: string) => {
+type WithArray<T> = {
+  [key in keyof T]: T[key][] | T[key];
+}
+
+const makeWithScheme = <T extends TypeC<any>>(scheme: T, table: string) => {
   const makeSelect = <O extends boolean>(once: O) => (
-    where: Partial<TypeOf<T>>,
+    where: Partial<WithArray<TypeOf<T>>>,
     what?: keyof TypeOf<T>[],
   ): TaskEither<Error, O extends true ? TypeOf<T> : TypeOf<T>[]> => {
     const whatQuery = what ? (what as any).join(',') : '*';
@@ -41,9 +51,7 @@ const makeWithSQL = <T extends TypeC<any>>(scheme: T, table: string) => {
     const data = makeDBQuery(sql, Object.values(where), once);
     const decode = once ? scheme.decode : IOArray(scheme).decode;
 
-    return chainEitherK(
-      decode,
-    )(data);
+    return chainEitherK(decode)(data);
   };
 
   return {
@@ -74,4 +82,4 @@ const makeWithSQL = <T extends TypeC<any>>(scheme: T, table: string) => {
   };
 };
 
-export { makeWithSQL };
+export { makeWithScheme };

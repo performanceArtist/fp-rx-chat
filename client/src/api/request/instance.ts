@@ -11,6 +11,10 @@ declare module 'fp-ts/lib/HKT' {
 const URI = 'Request';
 type URI = typeof URI;
 
+export const mapRequest = <A, B>(f: (a: A) => B) => (request: Request<A>): Request<B> => {
+  return isSuccess(request) ? success(f(request.data)) : request;
+}
+
 export const request: Functor1<URI> & Monad1<URI> = {
   URI,
   map: (request, f) => {

@@ -1,7 +1,4 @@
-import React, { useState, useEffect } from 'react';
-import { withRouter, RouteComponentProps } from 'react-router-dom';
-
-import { Request, isSuccess } from 'api/request';
+import React, { useState } from 'react';
 
 export type LoginQuery = {
   username: string;
@@ -10,9 +7,7 @@ export type LoginQuery = {
 
 type Props = {
   loginRequest: (user: LoginQuery) => void;
-  loginResult: Request;
-  onLoginSuccess: () => void;
-} & RouteComponentProps;
+};
 
 const useField = (setter: React.Dispatch<any>) => (event: React.FormEvent) => {
   const target = event.target as HTMLInputElement;
@@ -22,17 +17,11 @@ const useField = (setter: React.Dispatch<any>) => (event: React.FormEvent) => {
 const Login: React.FC<Props> = props => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
-  const { loginRequest, loginResult, onLoginSuccess } = props;
+  const { loginRequest } = props;
   const onSubmit = (event: React.FormEvent) => {
     event.preventDefault();
     loginRequest({ username, password });
   };
-
-  useEffect(() => {
-    if (isSuccess(loginResult)) {
-      onLoginSuccess();
-    }
-  }, [loginResult]);
 
   return (
     <form onSubmit={onSubmit}>
@@ -55,6 +44,4 @@ const Login: React.FC<Props> = props => {
   );
 };
 
-const Loffin = withRouter(Login);
-
-export { Loffin as Login };
+export { Login };

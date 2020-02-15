@@ -8,7 +8,7 @@ type Streams<T extends object> = {
 
 type Above<Type, Limit> = Limit extends Type
   ? Type
-  : { 'Missing properties': Exclude<keyof Type, keyof Limit> };
+  : Type extends Limit ? Type : { 'Missing properties': Exclude<keyof Type, keyof Limit> };
 
 type KeyofNever<T> = T extends never ? never : keyof T;
 
@@ -55,7 +55,7 @@ function withStreams<P extends object>(Component: ComponentType<P>) {
       }
 
       componentWillUnmount() {
-        this.propsSubscription.unsubscribe();
+        this.propsSubscription && this.propsSubscription.unsubscribe();
       }
 
       render() {

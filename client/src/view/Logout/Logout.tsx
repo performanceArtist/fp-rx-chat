@@ -1,23 +1,14 @@
-import React, { FC, useEffect } from 'react';
-
-import { Request, isSuccess } from 'api/request';
+import React, { FC } from 'react';
 
 type Props = {
-  onLogoutSuccess: () => void;
-  logoutStatus: Request<any>;
   onLogout: () => void;
 };
 
 const Logout: FC<Props> = props => {
-  const { logoutStatus, onLogout, onLogoutSuccess } = props;
-  useEffect(() => {
-    if (isSuccess(logoutStatus)) {
-      onLogoutSuccess();
-    }
-  }, [logoutStatus]);
+  const { onLogout } = props;
 
   return (
-    <button type="button" onClick={() => onLogout()}>
+    <button type="button" onClick={onLogout}>
       Log out
     </button>
   );
