@@ -15,7 +15,7 @@ type Failure = {
 };
 
 export type Request<D = unknown> = Pending | Success<D> | Failure;
-export type RequestData<D = unknown> = Observable<Request<D>>;
+export type RequestStream<D = unknown> = Observable<Request<D>>;
 
 export const success: <A>(data: A) => Success<A> = data => ({
   type: 'success',
@@ -27,9 +27,9 @@ export const failure: (error: Error) => Failure = error => ({
   error,
 });
 
-export const pending: () => Request<any> = () => ({
+export const pending: Request<never> = {
   type: 'pending',
-});
+};
 
 export const isSuccess = <T>(request: Request<T>): request is Success<T> =>
   request.type === 'success';

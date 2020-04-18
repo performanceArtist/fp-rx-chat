@@ -1,9 +1,13 @@
 import { isRight } from 'fp-ts/lib/Either';
+import { scan, tap } from 'rxjs/operators';
 
 import { Socket } from './sockets/core';
 import { SocketIOInterface } from './sockets/adapters/io';
 import { createHandler } from '../utils';
-import { socketMessage, SocketMessage } from './types/socket';
+//import { socketMessage, SocketMessage } from './types/socket';
+import { MessageScheme, MessageType } from 'models/message';
+
+type SocketMessage = any;
 
 export function createSocketClient(url: string) {
   const [data$, handleMessage] = createHandler<SocketMessage>();
@@ -12,8 +16,8 @@ export function createSocketClient(url: string) {
 
   socket.init(io);
   socket.subscribe('message', data => {
-    const message = socketMessage.decode(data);
-
+    const message = MessageScheme.decode(data);
+    console.log('IO', message);
     if (isRight(message)) {
       handleMessage(message.right);
     } else {
@@ -21,8 +25,23 @@ export function createSocketClient(url: string) {
     }
   });
 
+  const join = (room: string) => {
+    io.emit('subscribe', room);
+  };
+
+  const emit = io.emit.bind(io);
+
+  const messages$ = data$.pipe(
+    tap(e => console.log('mess', e)),
+    scan<MessageType, MessageType[]>((acc, message) => acc.concat(message), []),
+  );
+
   return {
     data$,
+    subscribe: socket.subscribe,
+    join,
+    emit,
+    messages$,
   };
 }
 

@@ -10,7 +10,7 @@ class SocketIOInterface<T, C extends string = never>
   private messsageEmitter = new EventEmitter();
 
   constructor(private url: string, private converter?: (data: any) => T) {
-    this.socket = io(this.url);
+    this.socket = io(this.url, { path: '/user/io' });
   }
 
   public onConnect(resolve: () => void) {
@@ -43,6 +43,10 @@ class SocketIOInterface<T, C extends string = never>
 
       this.messsageEmitter.emit('message', converted);
     });
+  }
+
+  public emit(event: string, data: any) {
+    this.socket.emit(event, data);
   }
 
   public unsubscribe(handler: (message: T) => void) {

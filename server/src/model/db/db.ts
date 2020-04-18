@@ -21,8 +21,9 @@ export const db = new Database('src/model/db/db.sqlite3', error => {
         return;
       } else {
         const insert =
-          'INSERT INTO user (uid, username, avatar, email, password) VALUES (?,?,?,?,?)';
+          'INSERT INTO user (id, uid, username, avatar, email, password) VALUES (?,?,?,?,?,?)';
         db.run(insert, [
+          1,
           Math.random().toString(),
           'sherk',
           'shrek.jpeg',
@@ -30,6 +31,7 @@ export const db = new Database('src/model/db/db.sqlite3', error => {
           'test',
         ]);
         db.run(insert, [
+          2,
           Math.random().toString(),
           'BigChungmire',
           'ooo.png',
@@ -52,17 +54,9 @@ export const db = new Database('src/model/db/db.sqlite3', error => {
         return;
       } else {
         const insert =
-          'INSERT INTO chat (name, description, avatar) VALUES (?,?,?)';
-        db.run(insert, [
-          'Chat #1',
-          'test chat1',
-          'ooo.png',
-        ]);
-        db.run(insert, [
-          'Chat #2',
-          'test chat2',
-          'ooo.png',
-        ]);
+          'INSERT INTO chat (id,name, description, avatar) VALUES (?,?,?,?)';
+        db.run(insert, [1, 'Chat1', 'test chat1', 'ooo.png']);
+        db.run(insert, [2, 'Chat2', 'test chat2', 'ooo.png']);
       }
     },
   );
@@ -79,16 +73,9 @@ export const db = new Database('src/model/db/db.sqlite3', error => {
       if (err) {
         return;
       } else {
-        const insert =
-          'INSERT INTO user_chat (user_id, chat_id) VALUES (?,?)';
-        db.run(insert, [
-          1,
-          1
-        ]);
-        db.run(insert, [
-          2,
-          1
-        ]);
+        const insert = 'INSERT INTO user_chat (user_id, chat_id) VALUES (?,?)';
+        db.run(insert, [1, 1]);
+        db.run(insert, [2, 1]);
       }
     },
   );
@@ -109,18 +96,8 @@ export const db = new Database('src/model/db/db.sqlite3', error => {
       } else {
         const insert =
           'INSERT INTO message (text, timestamp, user_id, chat_id) VALUES (?,?,?,?)';
-        db.run(insert, [
-          'shrek message',
-          new Date().getTime(),
-          1,
-          1
-        ]);
-        db.run(insert, [
-          'chungmire message',
-          new Date().getTime(),
-          2,
-          1
-        ]);
+        db.run(insert, ['shrek message', new Date().getTime(), 1, 1]);
+        db.run(insert, ['chungmire message', new Date().getTime(), 2, 1]);
       }
     },
   );

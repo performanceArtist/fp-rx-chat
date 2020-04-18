@@ -5,14 +5,27 @@ import session from 'express-session';
 import SessionFileStore from 'session-file-store';
 const FileStore = SessionFileStore(session);
 import * as Either from 'fp-ts/lib/Either';
-import { map, mapLeft } from 'fp-ts/lib/TaskEither';
+import { bimap } from 'fp-ts/lib/TaskEither';
 import { pipe } from 'fp-ts/lib/pipeable';
+import { flow } from 'fp-ts/lib/function';
+
+import { pick } from 'utils';
 
 import {
   UserScheme,
   withUserScheme,
   comparePasswords,
-} from '../model/entities/user';
+} from 'model/entities/user';
+
+declare global {
+  namespace Express {
+    interface User {
+      id: number;
+      username: string;
+      avatar: string;
+    }
+  }
+}
 
 passport.use(
   new LocalStrategy(
@@ -23,12 +36,13 @@ passport.use(
     (username, password, done) => {
       pipe(
         withUserScheme.selectOne({ username }),
-        map(user => {
-          comparePasswords(user.password, password)
-            ? done(null, user)
-            : done(new Error('Wrong password'));
-        }),
-        mapLeft(error => done(error)),
+        bimap(
+          error => done(error),
+          user =>
+            comparePasswords(user.password, password)
+              ? done(null, user)
+              : done(new Error('Wrong password')),
+        ),
       )();
     },
   ),
@@ -49,8 +63,10 @@ passport.serializeUser((user, done) => {
 passport.deserializeUser((uid: string, done) => {
   pipe(
     withUserScheme.selectOne({ uid }),
-    map(({ id, username, avatar }) => done(null, { id, username, avatar })),
-    mapLeft(error => done(error)),
+    bimap(
+      error => done(error),
+      flow(pick('id', 'username', 'avatar'), user => done(null, user)),
+    ),
   )();
 });
 
@@ -90,7 +106,6 @@ export const useAuth = (app: Express) => {
 };
 
 export const checkAuth = (req: Request, res: Response, next: NextFunction) => {
-  console.log('AUTH', req.isAuthenticated());
   if (req.isAuthenticated()) {
     next();
   } else {

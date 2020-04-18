@@ -1,8 +1,13 @@
 import * as t from 'io-ts';
-import { switchMap, shareReplay } from 'rxjs/operators';
+import { shareReplay } from 'rxjs/operators';
 import { ask } from 'fp-ts/lib/Reader';
-import { combineReaders, createHandler, asyncMap } from 'utils';
-import { ApiInstance } from 'deps';
+import { pipe } from 'fp-ts/lib/pipeable';
+
+import { combineReaders, asyncMap, pick } from 'utils';
+import { Api } from 'api/api';
+import { RequestStream } from 'api/request';
+
+import { User } from './user';
 
 export const ChatScheme = t.type({
   id: t.number,
@@ -22,33 +27,38 @@ const ChatUsersScheme = t.type({
   users: t.array(ChatUserScheme),
 });
 
-export type ChatModel = ReturnType<typeof createChatModel>;
 export type Chat = t.TypeOf<typeof ChatScheme>;
 export type UsersByChat = t.TypeOf<typeof ChatUsersScheme>;
 
-export const createChatModel = combineReaders(ask<ApiInstance>(), ({ api }) => {
-  const [chatsValue$, getChats] = createHandler();
-  const chats$ = chatsValue$.pipe(
-    switchMap(() =>
-      api.get('chat/all', { scheme: t.array(ChatScheme) })
-    ),
-    shareReplay(1),
-  );
+export type ChatModel = {
+  chats$: RequestStream<Chat[]>;
+  getUsersByChat: (chatID: number) => RequestStream<User[]>;
+};
 
-  const [usersValue$, getUsers] = createHandler<number>();
-  const users$ = usersValue$.pipe(
-    switchMap(chatID =>
-      api.get('chat/users', { scheme: ChatUsersScheme, query: { chatID } }),
-    ),
-    asyncMap(data => data.users),
-    shareReplay(1),
-  );
+type CreateChatModel = () => ChatModel;
 
-  return {
-    getChats,
-    chats$,
-    getUsers,
-    users$
-  };
-});
+type ChatModelDeps = {
+  api: Api;
+};
 
+export const createChatModel = combineReaders(
+  ask<ChatModelDeps>(),
+  ({ api }): CreateChatModel => () => {
+    const chats$ = pipe(
+      api.get('chat/all', { scheme: t.array(ChatScheme) }),
+      shareReplay(1),
+    );
+    const getUsersByChat = (chatID: number) =>
+      pipe(
+        api.get('chat/users', { scheme: ChatUsersScheme, query: { chatID } }),
+        asyncMap(pick('users')),
+        shareReplay(1),
+      );
+
+    return {
+      chats$,
+      users$: getUsersByChat,
+      getUsersByChat,
+    };
+  },
+);

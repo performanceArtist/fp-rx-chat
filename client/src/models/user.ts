@@ -1,11 +1,12 @@
-import { switchMap, shareReplay } from 'rxjs/operators';
+import { shareReplay, switchMap } from 'rxjs/operators';
 import { ask } from 'fp-ts/lib/Reader';
 import * as t from 'io-ts';
 
-import { combineReaders, createHandler } from 'utils';
-import { ApiInstance } from 'deps';
-
-export type UserModel = ReturnType<typeof createUserModel>;
+import { combineReaders } from 'utils';
+import { Api } from 'api/api';
+import { pipe } from 'fp-ts/lib/pipeable';
+import { AuthModel } from './auth';
+import { RequestStream } from 'api/request';
 
 const UserScheme = t.type({
   id: t.number,
@@ -16,16 +17,29 @@ const UserScheme = t.type({
 export type User = t.TypeOf<typeof UserScheme>;
 export type UserData = t.TypeOf<typeof UserScheme>;
 
-export const createUserModel = combineReaders(ask<ApiInstance>(), ({ api }) => {
-  const [userStart$, getUser] = createHandler();
+type UserModelDeps = {
+  api: Api;
+  authModel: AuthModel;
+};
 
-  const user$ = userStart$.pipe(
-    switchMap(() => api.get('user/me', { scheme: UserScheme })),
-    shareReplay(1),
-  );
+export type UserModel = {
+  user$: RequestStream<User>;
+};
 
-  return {
-    getUser,
-    user$,
-  };
-});
+type CreateUserModel = () => UserModel;
+
+export const createUserModel = combineReaders(
+  ask<UserModelDeps>(),
+  (deps): CreateUserModel => () => {
+    const { api, authModel } = deps;
+    const user$ = pipe(
+      authModel.authStatus$,
+      switchMap(() => api.get('user/me', { scheme: UserScheme })),
+      shareReplay(1),
+    );
+
+    return {
+      user$,
+    };
+  },
+);

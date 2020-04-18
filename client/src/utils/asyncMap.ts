@@ -1,5 +1,6 @@
 import { OperatorFunction } from 'rxjs';
 import { map } from 'rxjs/operators';
+
 import { mapRequest, Request } from 'api/request';
 
 export const asyncMap = <A, B>(

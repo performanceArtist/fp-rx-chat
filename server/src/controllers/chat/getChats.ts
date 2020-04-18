@@ -1,20 +1,17 @@
 import { chain } from 'fp-ts/lib/TaskEither';
 import { pipe } from 'fp-ts/lib/pipeable';
 
+import { pick } from 'utils';
 import {
   withUserToChatScheme,
   UserToChat,
   withChatScheme,
-} from '../../model/entities';
+} from 'model/entities';
 
-export const getChats = (userID: number) => {
-  const getChats = (userToChat: UserToChat[]) =>
-    withChatScheme.select({
-      id: userToChat.map(userToChat => userToChat.chat_id),
-    });
+const getChats = (userToChat: UserToChat[]) =>
+  withChatScheme.select({
+    id: userToChat.map(pick('chat_id')),
+  });
 
-  return pipe(
-    withUserToChatScheme.select({ user_id: userID }),
-    chain(getChats),
-  );
-};
+export const getChatsByUser = (userID: number) =>
+  pipe(withUserToChatScheme.select({ user_id: userID }), chain(getChats));

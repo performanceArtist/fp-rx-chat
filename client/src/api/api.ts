@@ -4,7 +4,7 @@ import { map, catchError } from 'rxjs/operators';
 import { Type, TypeOf } from 'io-ts';
 import { isLeft } from 'fp-ts/lib/Either';
 
-import { RequestData, failure, success } from './request';
+import { RequestStream, failure, success } from './request';
 
 type RequestOptions<S extends Type<any> = never> = {
   query?: any;
@@ -51,16 +51,14 @@ class Api {
     );
   }
 
-  private withMethod = (method: 'POST' | 'GET') => <
-    S extends Type<any>
-  >(
+  private withMethod = (method: 'POST' | 'GET') => <S extends Type<any>>(
     url: string,
     options?: RequestOptions<S>,
-  ): RequestData<TypeOf<S>> => {
+  ): RequestStream<TypeOf<S>> => {
     if (!options) {
       return this.request(url, { method });
     }
-
+    console.log('REQUEST', url, options);
     const { query, scheme } = options;
     const finalURL =
       method === 'GET' && query ? `${url}?${getQueryString(query)}` : url;

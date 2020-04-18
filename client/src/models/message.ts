@@ -1,12 +1,13 @@
-import { switchMap, shareReplay } from 'rxjs/operators';
+import { shareReplay } from 'rxjs/operators';
 import { ask } from 'fp-ts/lib/Reader';
 import * as t from 'io-ts';
 
-import { combineReaders, createHandler } from 'utils';
-import { ApiInstance } from 'deps';
+import { combineReaders } from 'utils';
+import { Api } from 'api/api';
+import { RequestStream } from 'api/request';
+import { pipe } from 'fp-ts/lib/pipeable';
 
-const MessageScheme = t.type({
-  id: t.number,
+export const MessageScheme = t.type({
   text: t.string,
   timestamp: t.number,
   user_id: t.number,
@@ -14,29 +15,39 @@ const MessageScheme = t.type({
 });
 
 export type MessageType = t.TypeOf<typeof MessageScheme>;
+export type SendMessageType = Omit<MessageType, 'id'>;
 
 export type MessageQuery = {
   chatID: number;
   limit?: number;
   offset?: number;
-}
+};
+
+type MessageModelDeps = {
+  api: Api;
+};
+
+export type MessageModel = {
+  getMessagesByChat: (chatID: number) => RequestStream<MessageType[]>;
+};
+
+type CreateMessageModel = () => MessageModel;
 
 export const createMessageModel = combineReaders(
-  ask<ApiInstance>(),
-  ({ api }) => {
-    const [messagesValue$, getMessages] = createHandler<MessageQuery>();
-    const messages$ = messagesValue$.pipe(
-      switchMap(query =>
-        api.get('chat/messages', { scheme: t.array(MessageScheme), query }),
-      ),
-      shareReplay(1),
-    );
+  ask<MessageModelDeps>(),
+  (deps): CreateMessageModel => () => {
+    const { api } = deps;
+    const getMessagesByChat = (chatID: number) =>
+      pipe(
+        api.get('chat/messages', {
+          scheme: t.array(MessageScheme),
+          query: { chatID },
+        }),
+        shareReplay(1),
+      );
 
     return {
-      getMessages,
-      messages$,
+      getMessagesByChat,
     };
   },
 );
-
-export type MessageModel = ReturnType<typeof createMessageModel>;

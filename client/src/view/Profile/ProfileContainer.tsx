@@ -1,21 +1,22 @@
 import { ask } from 'fp-ts/lib/Reader';
 
 import { UserModel } from 'models/user';
-import { withStreams, combineReaders } from 'utils';
+import { combineReaders, withDefaults, useObservable } from 'utils';
 
 import { Profile } from './Profile';
 import { pending } from 'api/request';
 
-const ProfileContainer = combineReaders(ask<UserModel>(), UserModel => {
-  return withStreams(Profile)(() => {
-    return {
-      defaultProps: {
-        user: pending()
-      },
-      streams: {
-        user: UserModel.user$
-      }
-    };
+type ProfileContainerDeps = {
+  userModel: UserModel;
+};
+
+const ProfileContainer = combineReaders(ask<ProfileContainerDeps>(), deps => {
+  const { userModel } = deps;
+
+  return withDefaults(Profile)(() => {
+    const user = useObservable(userModel.user$, pending);
+
+    return { user };
   });
 });
 

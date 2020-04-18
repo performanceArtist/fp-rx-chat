@@ -16,8 +16,8 @@ const Message: FC<Props> = props => {
   if (isYours) {
     return (
       <div className="message message_yours">
-        <div className="message__avatar"></div>
         <div className="message__content">{text}</div>
+        <div className="message__avatar"><Avatar image={avatar} /></div>
       </div>
     );
   }

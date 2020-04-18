@@ -1,18 +1,18 @@
 import { ask } from 'fp-ts/lib/Reader';
 
-import { withStreams, combineReaders } from 'utils';
+import { combineReaders, withDefaults } from 'utils';
 import { AuthModel } from 'models/auth';
 
 import { Logout } from './Logout';
 
-const LogoutContainer = combineReaders(ask<AuthModel>(), AuthModel => {
-  return withStreams(Logout)(() => {
-    return {
-      defaultProps: {
-        onLogout: AuthModel.logout,
-      },
-    };
-  });
+type LogoutDeps = {
+  authModel: AuthModel;
+};
+
+const LogoutContainer = combineReaders(ask<LogoutDeps>(), deps => {
+  const { authModel } = deps;
+
+  return withDefaults(Logout)(() => ({ onLogout: authModel.logout }));
 });
 
 export { LogoutContainer };

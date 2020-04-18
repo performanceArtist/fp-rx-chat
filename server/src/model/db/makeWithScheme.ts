@@ -58,10 +58,11 @@ const makeWithScheme = <T extends TypeC<any>>(scheme: T, table: string) => {
     select: makeSelect(false),
     selectOne: makeSelect(true),
     insert: (row: TypeOf<T>) => {
-      const values = ','.repeat(Object.keys(row).length);
+      const values = [...'?'.repeat(Object.keys(scheme.props).length)].join(',');
       const sql = `INSERT INTO ${table} values(${values})`;
+      const orderedValues = Object.keys(scheme.props).map(key => row[key]);
 
-      return makeDBQuery(sql, Object.values(row));
+      return makeDBQuery(sql, orderedValues);
     },
     update: (where: Partial<TypeOf<T>>, updates: Partial<TypeOf<T>>) => {
       const whereQuery = makeWhereString(where);

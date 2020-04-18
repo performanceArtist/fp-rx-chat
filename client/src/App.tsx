@@ -1,67 +1,44 @@
-import React, { useEffect, memo } from 'react';
+import React, { memo, useMemo, createElement } from 'react';
 import { Route, Switch, HashRouter, Redirect } from 'react-router-dom';
 
 import { combineReaders } from 'utils';
 import { User } from 'models/user';
-import { AuthStatus } from 'models/auth';
 import { Request, isPending, isSuccess } from 'api/request';
-import { makePrivateRoute } from 'ui/PrivateRoute/PrivateRoute';
 import { Preloader } from 'ui/Preloader/Preloader';
-
-import { Layout } from './view/Layout/Layout';
-import { LoginContainer } from './view/Login/LoginContainer';
-import { HomeContainer } from './view/Home/HomeContainer';
-import { ProfileContainer } from './view/Profile/ProfileContainer';
+import { LoginContainer } from 'view/Login/LoginContainer';
+import { AuthorizedContainer } from 'view/Authorized/AuthorizedContainer';
 
 type Props = {
-  authStatus: AuthStatus;
-  getUser: () => void;
   user: Request<User>;
 };
 
 const App = combineReaders(
   LoginContainer,
-  Layout,
-  HomeContainer,
-  ProfileContainer,
-  (Login, Layout, Home, Profile) => {
-    return memo((props: Props) => {
-      const { getUser, user, authStatus } = props;
-
-      useEffect(() => {
-        getUser();
-      }, [authStatus]);
+  AuthorizedContainer,
+  (LoginContainer, AuthorizedContainer) =>
+    memo<Props>(props => {
+      const { user } = props;
 
       if (isPending(user)) {
         return <Preloader />;
       }
 
-      const hasAuthenticated = isSuccess(user);
-      const PrivateRoute = makePrivateRoute(hasAuthenticated, '/login');
-      const routes = (
-        <Switch>
-          <PrivateRoute
-            exact
-            path="/"
-            component={() => (
-              <Layout>
-                <Home />
-              </Layout>
-            )}
-          />
-          <PrivateRoute
-            path="/profile"
-            component={Profile}
-          />
-          {hasAuthenticated && <Redirect to="/" />}
-          <Route path="/login" component={Login} />
-          <Route path="*" component={() => <h2>404</h2>} />
-        </Switch>
+      const isAuthenticated = isSuccess(user);
+      const routes = useMemo(
+        () =>
+          isAuthenticated ? (
+            createElement(AuthorizedContainer())
+          ) : (
+            <Switch>
+              <Route path="/login" component={LoginContainer} />
+              <Redirect to="/login" />
+            </Switch>
+          ),
+        [isAuthenticated],
       );
 
       return <HashRouter>{routes}</HashRouter>;
-    });
-  },
+    }),
 );
 
 export { App };

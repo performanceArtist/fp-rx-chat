@@ -16,7 +16,7 @@ const Layout = combineReaders(LogoutContainer, Logout => {
         <header>
           <Logout />
         </header>
-        <h1>OK BOOMER</h1>
+        <h1>KEK POK</h1>
         {children}
       </div>
     );
