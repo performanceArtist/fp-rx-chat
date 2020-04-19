@@ -3,9 +3,9 @@ import { shareReplay } from 'rxjs/operators';
 import { ask } from 'fp-ts/lib/Reader';
 import { pipe } from 'fp-ts/lib/pipeable';
 
-import { combineReaders, asyncMap, pick } from 'utils';
+import { combineReaders, pick } from 'utils';
 import { Api } from 'api/api';
-import { RequestStream } from 'api/request';
+import { RequestStream, asyncMap } from 'api/request';
 
 import { User } from './user';
 
@@ -57,7 +57,6 @@ export const createChatModel = combineReaders(
 
     return {
       chats$,
-      users$: getUsersByChat,
       getUsersByChat,
     };
   },

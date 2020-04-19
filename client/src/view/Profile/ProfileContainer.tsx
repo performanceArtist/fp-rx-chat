@@ -2,9 +2,9 @@ import { ask } from 'fp-ts/lib/Reader';
 
 import { UserModel } from 'models/user';
 import { combineReaders, withDefaults, useObservable } from 'utils';
+import { pending } from 'api/request';
 
 import { Profile } from './Profile';
-import { pending } from 'api/request';
 
 type ProfileContainerDeps = {
   userModel: UserModel;

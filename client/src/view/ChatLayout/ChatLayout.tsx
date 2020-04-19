@@ -1,4 +1,4 @@
-import React, { FC, useState, useEffect, useRef } from 'react';
+import React, { FC, useEffect, useRef } from 'react';
 import { pipe } from 'fp-ts/lib/pipeable';
 import { array, option, ord } from 'fp-ts';
 import { ordNumber } from 'fp-ts/lib/Ord';
@@ -9,7 +9,7 @@ import { Chat } from 'models/chat';
 import { MessageType, SendMessageType } from 'models/message';
 import { AsyncData } from 'ui/AsyncData/AsyncData';
 import { Message } from 'ui/Message/Message';
-import { pick } from 'utils';
+import { pick, useField } from 'utils';
 
 import './ChatLayout.scss';
 
@@ -29,21 +29,19 @@ type Props = {
 
 const Chat: FC<Props> = props => {
   const { chatInfo, chatData, socketMessages, sendMessage, joinRoom } = props;
-  const [message, setMessage] = useState<string>('');
+  const [message, onMessage] = useField('');
   const scrollToRef = useRef<HTMLDivElement>(null);
   const scrollTo = () => {
-    scrollToRef.current &&
-      scrollToRef.current.scrollIntoView();
+    scrollToRef.current && scrollToRef.current.scrollIntoView();
   };
 
   useEffect(() => {
     if (isSuccess(chatData)) {
       joinRoom(chatInfo.name);
-      scrollTo();
     }
   }, [chatData]);
 
-  useEffect(scrollTo, [socketMessages]);
+  useEffect(scrollTo, [chatData, socketMessages]);
 
   const renderSuccess = (data: ChatData) => {
     const { user, chatUsers, messages } = data;
@@ -85,7 +83,7 @@ const Chat: FC<Props> = props => {
         },
         chatInfo.name,
       );
-      setMessage('');
+      onMessage.set('');
     };
 
     return (
@@ -100,7 +98,7 @@ const Chat: FC<Props> = props => {
             <input
               className="chat__input"
               value={message}
-              onChange={event => setMessage(event.target.value)}
+              onChange={onMessage.change}
               type="text"
               placeholder="Your message"
             />

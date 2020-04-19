@@ -6,11 +6,11 @@ import {
   distinctUntilChanged,
 } from 'rxjs/operators';
 import { ask } from 'fp-ts/lib/Reader';
+import { pipe } from 'fp-ts/lib/pipeable';
 
 import { combineReaders, createHandler } from 'utils';
 import { isSuccess } from 'api/request';
 import { Api } from 'api/api';
-import { pipe } from 'fp-ts/lib/pipeable';
 
 export type AuthStatus = 'unknown' | 'login' | 'logout';
 export type LoginQuery = {

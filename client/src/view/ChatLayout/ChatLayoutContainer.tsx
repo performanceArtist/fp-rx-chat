@@ -2,8 +2,8 @@ import { ask } from 'fp-ts/lib/Reader';
 import { pipe } from 'fp-ts/lib/pipeable';
 
 import { SocketClient } from 'api/sockets';
-import { combineReaders, asyncMap, useObservable, withDefaults } from 'utils';
-import { pending, combine } from 'api/request';
+import { combineReaders, useObservable, withDefaults } from 'utils';
+import { pending, combine, asyncMap } from 'api/request';
 import { ChatModel } from 'models/chat';
 import { MessageModel, SendMessageType } from 'models/message';
 import { UserModel } from 'models/user';

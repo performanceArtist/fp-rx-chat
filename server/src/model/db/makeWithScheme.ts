@@ -1,5 +1,8 @@
 import { TypeC, TypeOf, array as IOArray } from 'io-ts';
+import { failure } from 'io-ts/lib/PathReporter';
 import { tryCatch, chainEitherK, TaskEither } from 'fp-ts/lib/TaskEither';
+import { flow } from 'fp-ts/lib/function';
+import { either } from 'fp-ts';
 
 import { db } from './db';
 
@@ -38,7 +41,7 @@ const makeWhereString = (where: { [key: string]: any }) => {
 
 type WithArray<T> = {
   [key in keyof T]: T[key][] | T[key];
-}
+};
 
 const makeWithScheme = <T extends TypeC<any>>(scheme: T, table: string) => {
   const makeSelect = <O extends boolean>(once: O) => (
@@ -50,15 +53,21 @@ const makeWithScheme = <T extends TypeC<any>>(scheme: T, table: string) => {
     const sql = `SELECT ${whatQuery} from ${table} WHERE ${whereQuery}`;
     const data = makeDBQuery(sql, Object.values(where), once);
     const decode = once ? scheme.decode : IOArray(scheme).decode;
+    const withError = flow(
+      decode,
+      either.mapLeft(errors => new Error(failure(errors).join('\n'))),
+    );
 
-    return chainEitherK(decode)(data);
+    return chainEitherK(withError)(data) as any;
   };
 
   return {
     select: makeSelect(false),
     selectOne: makeSelect(true),
     insert: (row: TypeOf<T>) => {
-      const values = [...'?'.repeat(Object.keys(scheme.props).length)].join(',');
+      const values = [...'?'.repeat(Object.keys(scheme.props).length)].join(
+        ',',
+      );
       const sql = `INSERT INTO ${table} values(${values})`;
       const orderedValues = Object.keys(scheme.props).map(key => row[key]);
 

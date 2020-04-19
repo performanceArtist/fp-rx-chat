@@ -1,10 +1,12 @@
-import { combineReaders, implode } from 'utils';
 import { ask } from 'fp-ts/lib/Reader';
-import { Authorized } from './Authorized';
+
+import { combineReaders, implode } from 'utils';
 import { createMessageModel } from 'models/message';
 import { createChatModel } from 'models/chat';
 import { Api } from 'api/api';
 import { createSocketClient } from 'api/sockets';
+
+import { Authorized } from './Authorized';
 
 type AuthorizedContainerDeps = {
   api: Api;

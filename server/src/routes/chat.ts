@@ -1,61 +1,62 @@
 import { Router } from 'express';
-import { bimap } from 'fp-ts/lib/TaskEither';
 import { pipe } from 'fp-ts/lib/pipeable';
-import { array } from 'fp-ts';
+import { array, taskEither, either } from 'fp-ts';
 import { flow } from 'fp-ts/lib/function';
 
-import { pick } from 'utils';
+import { pick, sendError } from 'utils';
 import {
   getUsersByChat,
   getChatsByUser,
   getMessages,
   saveMessage,
 } from 'controllers/chat';
+import { MessageScheme } from 'model/entities';
+
+import * as validate from './validators';
 
 export const ChatRouter = Router();
 
 ChatRouter.get('/all', (req, res) => {
   pipe(
-    getChatsByUser(req.user!.id),
-    bimap(
-      () => res.sendStatus(500),
-      chats => res.json(chats),
+    either.fromNullable('No user id')(req.user?.id),
+    either.bimap(sendError(res), userID =>
+      pipe(
+        getChatsByUser(userID),
+        taskEither.bimap(sendError(res)('Failed to get chats'), chats =>
+          res.json(chats),
+        ),
+      )(),
     ),
-  )();
+  );
 });
 
 ChatRouter.get('/users', (req, res) => {
-  const chatID = parseInt(req.query.chatID, 10);
-
-  if (Number.isNaN(chatID)) {
-    return res.status(500).send('No chat id');
-  }
-
   pipe(
-    getUsersByChat(chatID),
-    bimap(
-      () => res.sendStatus(500),
-      flow(array.map(pick('id', 'username', 'avatar')), users =>
-        res.json({ chatID, users }),
-      ),
+    validate.chatID(req.query),
+    either.bimap(sendError(res), chatID =>
+      pipe(
+        getUsersByChat(chatID),
+        taskEither.bimap(
+          sendError(res),
+          flow(array.map(pick('id', 'username', 'avatar')), users =>
+            res.json({ chatID, users }),
+          ),
+        ),
+      )(),
     ),
-  )();
+  );
 });
 
 ChatRouter.get('/messages', (req, res) => {
-  const chatID = parseInt(req.query.chatID, 10);
-
-  if (Number.isNaN(chatID)) {
-    return res.status(500).send('No chat id');
-  }
-
   pipe(
-    getMessages(chatID),
-    bimap(
-      () => res.sendStatus(500),
-      messages => res.json(messages),
+    validate.chatID(req.query),
+    either.bimap(sendError(res), chatID =>
+      pipe(
+        getMessages(chatID),
+        taskEither.bimap(sendError(res), messages => res.json(messages)),
+      )(),
     ),
-  )();
+  );
 });
 
 ChatRouter.post('/send/:room', (req, res) => {
@@ -63,13 +64,15 @@ ChatRouter.post('/send/:room', (req, res) => {
   const { message } = req.body;
 
   pipe(
-    saveMessage(message),
-    bimap(
-      () => res.sendStatus(500),
-      () => {
-        req.io.sockets.in(room).emit('message', { room, message });
-        res.sendStatus(200);
-      },
+    MessageScheme.decode(message),
+    either.bimap(sendError(res)('Invalid message'), message =>
+      pipe(
+        saveMessage(message),
+        taskEither.bimap(sendError(res)('Failed to save a message'), () => {
+          req.io.sockets.in(room).emit('message', { room, message });
+          res.sendStatus(200);
+        }),
+      )(),
     ),
-  )();
+  );
 });

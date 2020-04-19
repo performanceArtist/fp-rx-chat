@@ -1,5 +1,5 @@
 import { isRight } from 'fp-ts/lib/Either';
-import { scan, tap } from 'rxjs/operators';
+import { scan } from 'rxjs/operators';
 
 import { Socket } from './sockets/core';
 import { SocketIOInterface } from './sockets/adapters/io';
@@ -17,7 +17,7 @@ export function createSocketClient(url: string) {
   socket.init(io);
   socket.subscribe('message', data => {
     const message = MessageScheme.decode(data);
-    console.log('IO', message);
+
     if (isRight(message)) {
       handleMessage(message.right);
     } else {
@@ -32,7 +32,6 @@ export function createSocketClient(url: string) {
   const emit = io.emit.bind(io);
 
   const messages$ = data$.pipe(
-    tap(e => console.log('mess', e)),
     scan<MessageType, MessageType[]>((acc, message) => acc.concat(message), []),
   );
 

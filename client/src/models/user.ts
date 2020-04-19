@@ -1,10 +1,10 @@
 import { shareReplay, switchMap } from 'rxjs/operators';
 import { ask } from 'fp-ts/lib/Reader';
 import * as t from 'io-ts';
+import { pipe } from 'fp-ts/lib/pipeable';
 
 import { combineReaders } from 'utils';
 import { Api } from 'api/api';
-import { pipe } from 'fp-ts/lib/pipeable';
 import { AuthModel } from './auth';
 import { RequestStream } from 'api/request';
 

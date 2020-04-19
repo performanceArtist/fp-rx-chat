@@ -1,14 +1,12 @@
-import React, { FC } from 'react';
+import React, { memo } from 'react';
 
 import { combineReaders } from 'utils';
 import { LogoutContainer } from 'view/Logout/LogoutContainer';
 
 import './Layout.scss';
 
-type Props = {};
-
-const Layout = combineReaders(LogoutContainer, Logout => {
-  const Component: FC<Props> = props => {
+const Layout = combineReaders(LogoutContainer, Logout =>
+  memo(props => {
     const { children } = props;
 
     return (
@@ -20,9 +18,7 @@ const Layout = combineReaders(LogoutContainer, Logout => {
         {children}
       </div>
     );
-  };
-
-  return Component;
-});
+  }),
+);
 
 export { Layout };
