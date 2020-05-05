@@ -1,8 +1,8 @@
 import React, { FC } from 'react';
 
-import { User } from 'models/user';
 import { Request } from 'api/request';
 import { AsyncData } from 'ui/AsyncData/AsyncData';
+import { User } from 'shared/types';
 
 type ProfileProps = {
   user: Request<User>;

@@ -1,6 +1,6 @@
 import { ask } from 'fp-ts/lib/Reader';
 
-import { combineReaders, withDefaults, useObservable } from 'utils';
+import { combineReaders, withDefaults, useObservable } from 'shared/utils';
 import { pending } from 'api/request';
 import { UserModel } from 'models/user';
 

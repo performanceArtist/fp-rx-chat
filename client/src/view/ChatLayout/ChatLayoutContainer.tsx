@@ -1,7 +1,7 @@
 import { ask } from 'fp-ts/lib/Reader';
 import { pipe } from 'fp-ts/lib/pipeable';
 
-import { combineReaders, useObservable, withDefaults } from 'utils';
+import { combineReaders, useObservable, withDefaults } from 'shared/utils';
 import { pending, combine, asyncMap } from 'api/request';
 import { ChatModel } from 'models/chat';
 import { MessageModel } from 'models/message';

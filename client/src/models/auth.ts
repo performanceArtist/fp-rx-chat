@@ -8,12 +8,12 @@ import {
 import { ask } from 'fp-ts/lib/Reader';
 import { pipe } from 'fp-ts/lib/pipeable';
 
-import { combineReaders, createHandler } from 'utils';
+import { combineReaders, createHandler } from 'shared/utils';
 import { isSuccess } from 'api/request';
 import { Api } from 'api/api';
 
-export type AuthStatus = 'unknown' | 'login' | 'logout';
-export type LoginQuery = {
+type AuthStatus = 'unknown' | 'login' | 'logout';
+type LoginQuery = {
   username: string;
   password: string;
 };

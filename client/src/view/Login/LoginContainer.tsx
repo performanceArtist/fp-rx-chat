@@ -1,7 +1,7 @@
 import { ask } from 'fp-ts/lib/Reader';
 
 import { AuthModel } from 'models/auth';
-import { combineReaders, withDefaults } from 'utils';
+import { combineReaders, withDefaults } from 'shared/utils';
 
 import { Login } from './Login';
 

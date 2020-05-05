@@ -1,6 +1,6 @@
 import { ask } from 'fp-ts/lib/Reader';
 
-import { combineReaders, implode } from 'utils';
+import { combineReaders, implode } from 'shared/utils';
 import { createMessageModel } from 'models/message';
 import { createChatModel } from 'models/chat';
 import { Api } from 'api/api';

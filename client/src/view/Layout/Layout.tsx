@@ -1,6 +1,6 @@
 import React, { memo } from 'react';
 
-import { combineReaders } from 'utils';
+import { combineReaders } from 'shared/utils';
 import { LogoutContainer } from 'view/Logout/LogoutContainer';
 
 import './Layout.scss';

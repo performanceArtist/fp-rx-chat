@@ -1,7 +1,7 @@
 import React, { memo, useMemo, createElement } from 'react';
 import { Route, Switch, HashRouter, Redirect } from 'react-router-dom';
 
-import { combineReaders } from 'utils';
+import { combineReaders } from 'shared/utils';
 import { User } from 'models/user';
 import { Request, isPending, isSuccess } from 'api/request';
 import { Preloader } from 'ui/Preloader/Preloader';

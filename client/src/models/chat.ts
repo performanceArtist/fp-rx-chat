@@ -3,7 +3,7 @@ import { shareReplay } from 'rxjs/operators';
 import { ask } from 'fp-ts/lib/Reader';
 import { pipe } from 'fp-ts/lib/pipeable';
 
-import { combineReaders, pick } from 'utils';
+import { combineReaders, pick } from 'shared/utils';
 import { Api } from 'api/api';
 import { RequestStream, asyncMap } from 'api/request';
 import { SocketClient } from 'api/sockets';

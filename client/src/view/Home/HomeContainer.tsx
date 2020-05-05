@@ -1,11 +1,11 @@
+import { ask } from 'fp-ts/lib/Reader';
+
 import { ChatModel } from 'models/chat';
-import { combineReaders } from 'utils';
+import { combineReaders } from 'shared/utils';
 import { pending } from 'api/request';
+import { useObservable, withDefaults } from 'shared/utils';
 
 import { Home } from './Home';
-import { useObservable } from 'utils/hooks';
-import { ask } from 'fp-ts/lib/Reader';
-import { withDefaults } from 'utils/withDefaults';
 
 type HomeDeps = {
   chatModel: ChatModel;

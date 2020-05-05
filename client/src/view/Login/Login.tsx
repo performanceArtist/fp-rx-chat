@@ -1,6 +1,6 @@
 import React, { memo } from 'react';
 
-import { useField } from 'utils';
+import { useField } from 'shared/utils';
 
 export type LoginQuery = {
   username: string;

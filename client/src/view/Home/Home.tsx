@@ -3,8 +3,8 @@ import React, { useState, memo } from 'react';
 import { ChatTab } from 'ui/ChatTab/ChatTab';
 import { AsyncData } from 'ui/AsyncData/AsyncData';
 import { Request } from 'api/request';
-import { Chat } from 'models/chat';
-import { combineReaders } from 'utils';
+import { combineReaders } from 'shared/utils';
+import { Chat } from 'shared/types';
 
 import { ChatLayoutContainer } from '../ChatLayout/ChatLayoutContainer';
 import './Home.scss';

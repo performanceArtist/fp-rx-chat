@@ -1,7 +1,7 @@
 import React, { memo } from 'react';
 import { Switch, Route, Redirect } from 'react-router';
 
-import { combineReaders } from 'utils';
+import { combineReaders } from 'shared/utils';
 import { HomeContainer } from 'view/Home/HomeContainer';
 import { ProfileContainer } from 'view/Profile/ProfileContainer';
 import { Layout } from 'view/Layout/Layout';

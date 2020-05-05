@@ -1,17 +1,22 @@
-import React, { FC, useEffect, useRef } from 'react';
+import React, { FC, useEffect, useRef, FormEvent } from 'react';
 import { pipe } from 'fp-ts/lib/pipeable';
 import { array, option, ord } from 'fp-ts';
 import { ordNumber } from 'fp-ts/lib/Ord';
 
 import { Request, isSuccess } from 'api/request';
-import { User } from 'models/user';
-import { Chat } from 'models/chat';
-import { MessageType, SendMessageType } from 'models/message';
 import { AsyncData } from 'ui/AsyncData/AsyncData';
 import { Message } from 'ui/Message/Message';
-import { pick, useField } from 'utils';
+import { pick, useField } from 'shared/utils';
+import { User, Chat } from 'shared/types';
 
 import './ChatLayout.scss';
+
+type MessageType = {
+  text: string;
+  timestamp: number;
+  user_id: number;
+  chat_id: number;
+};
 
 type ChatData = {
   user: User;
@@ -22,7 +27,7 @@ type ChatData = {
 type ChatLayoutProps = {
   chatInfo: Chat;
   chatData: Request<ChatData>;
-  sendMessage: (message: SendMessageType, room: string) => void;
+  sendMessage: (message: MessageType, room: string) => void;
   joinRoom: (room: string) => void;
 };
 
@@ -70,7 +75,7 @@ export const ChatLayout: FC<ChatLayoutProps> = props => {
     );
     const usernames = chatUsers.map(pick('username')).join(', ');
 
-    const handleSubmit = (event: React.FormEvent) => {
+    const handleSubmit = (event: FormEvent) => {
       event.preventDefault();
 
       sendMessage(

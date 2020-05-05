@@ -1,11 +1,12 @@
 import { isRight } from 'fp-ts/lib/Either';
 import { scan } from 'rxjs/operators';
 
-import { Socket } from './sockets/core';
-import { SocketIOInterface } from './sockets/adapters/io';
-import { createHandler } from '../utils';
+import { createHandler } from 'shared/utils';
 //import { socketMessage, SocketMessage } from './types/socket';
 import { MessageScheme, MessageType } from 'models/message';
+
+import { Socket } from './sockets/core';
+import { SocketIOInterface } from './sockets/adapters/io';
 
 type SocketMessage = any;
 
