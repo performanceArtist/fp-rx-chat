@@ -1,4 +1,4 @@
-import { shareReplay, map, startWith } from 'rxjs/operators';
+import { shareReplay, map, startWith, scan } from 'rxjs/operators';
 import { ask } from 'fp-ts/lib/Reader';
 import * as t from 'io-ts';
 
@@ -39,7 +39,17 @@ export const createMessageModel = combineReaders(
   ask<MessageModelDeps>(),
   (deps): CreateMessageModel => () => {
     const { api, socketClient } = deps;
-    const socketMessages$ = pipe(socketClient.messages$, map(success), startWith(success([])));
+    const message$ = socketClient.subscribe('message');
+    const messages$ = pipe(
+      message$,
+      scan<MessageType, MessageType[]>((acc, cur) => acc.concat(cur), []),
+    );
+    const socketMessages$ = pipe(
+      messages$,
+      map(success),
+      startWith(success([])),
+    );
+
     const getStoredMessages = (chatID: number) =>
       api.get('chat/messages', {
         scheme: t.array(MessageScheme),

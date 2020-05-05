@@ -35,6 +35,7 @@ class SocketIOInterface<T, C extends string = never>
     this.socket.on('disconnect', resolve);
   }
 
+  @autobind
   public subscribe(handler: (message: T) => void, channel?: C) {
     this.socket.on(channel || '*', (data: any) => {
       const converted = this.converter
@@ -45,6 +46,7 @@ class SocketIOInterface<T, C extends string = never>
     });
   }
 
+  @autobind
   public emit(event: string, data: any) {
     this.socket.emit(event, data);
   }

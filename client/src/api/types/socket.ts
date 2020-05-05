@@ -1,7 +1,10 @@
-import * as t from 'io-ts';
-
 import { MessageScheme } from 'models/message';
+import { TypeOf } from 'io-ts';
 
-export type SocketMessage = t.TypeOf<typeof MessageScheme>;
+export const channelToScheme = {
+  message: MessageScheme,
+};
 
-export const socketMessage = t.taggedUnion('type', [MessageScheme, MessageScheme]);
+export type ChannelToScheme = typeof channelToScheme;
+export type SocketChannel = keyof ChannelToScheme;
+export type SocketMessage = TypeOf<ChannelToScheme[SocketChannel]>
