@@ -11,7 +11,7 @@ type HomeDeps = {
   chatModel: ChatModel;
 };
 
-const HomeContainer = combineReaders(ask<HomeDeps>(), Home, (deps, Home) => {
+export const HomeContainer = combineReaders(ask<HomeDeps>(), Home, (deps, Home) => {
   return withDefaults(Home)(() => {
     const { chatModel } = deps;
     const chats = useObservable(chatModel.chats$, pending);
@@ -19,5 +19,3 @@ const HomeContainer = combineReaders(ask<HomeDeps>(), Home, (deps, Home) => {
     return { chats };
   });
 });
-
-export { HomeContainer };

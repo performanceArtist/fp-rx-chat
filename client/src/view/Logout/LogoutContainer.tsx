@@ -9,10 +9,9 @@ type LogoutDeps = {
   authModel: AuthModel;
 };
 
-const LogoutContainer = combineReaders(ask<LogoutDeps>(), deps => {
+export const LogoutContainer = combineReaders(ask<LogoutDeps>(), deps => {
   const { authModel } = deps;
 
   return withDefaults(Logout)(() => ({ onLogout: authModel.logout }));
 });
 
-export { LogoutContainer };

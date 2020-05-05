@@ -6,6 +6,7 @@ import { pipe } from 'fp-ts/lib/pipeable';
 import { combineReaders, pick } from 'utils';
 import { Api } from 'api/api';
 import { RequestStream, asyncMap } from 'api/request';
+import { SocketClient } from 'api/sockets';
 
 import { User } from './user';
 
@@ -33,17 +34,20 @@ export type UsersByChat = t.TypeOf<typeof ChatUsersScheme>;
 export type ChatModel = {
   chats$: RequestStream<Chat[]>;
   getUsersByChat: (chatID: number) => RequestStream<User[]>;
+  joinChat: (room: string) => void;
 };
 
 type CreateChatModel = () => ChatModel;
 
 type ChatModelDeps = {
   api: Api;
+  socketClient: SocketClient;
 };
 
 export const createChatModel = combineReaders(
   ask<ChatModelDeps>(),
-  ({ api }): CreateChatModel => () => {
+  (deps): CreateChatModel => () => {
+    const { api, socketClient } = deps;
     const chats$ = pipe(
       api.get('chat/all', { scheme: t.array(ChatScheme) }),
       shareReplay(1),
@@ -58,6 +62,7 @@ export const createChatModel = combineReaders(
     return {
       chats$,
       getUsersByChat,
+      joinChat: socketClient.join,
     };
   },
 );

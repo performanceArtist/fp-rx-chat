@@ -17,7 +17,7 @@ const getQueryString = (query: any) => {
     .join('&');
 };
 
-class Api {
+export class Api {
   constructor(private baseURL: string, private defaults?: AjaxRequest) {}
 
   public request<S extends Type<any>>(
@@ -69,5 +69,3 @@ class Api {
   public get = this.withMethod('GET');
   public post = this.withMethod('POST');
 }
-
-export { Api };

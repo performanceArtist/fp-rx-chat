@@ -43,7 +43,7 @@ type WithArray<T> = {
   [key in keyof T]: T[key][] | T[key];
 };
 
-const makeWithScheme = <T extends TypeC<any>>(scheme: T, table: string) => {
+export const makeWithScheme = <T extends TypeC<any>>(scheme: T, table: string) => {
   const makeSelect = <O extends boolean>(once: O) => (
     where: Partial<WithArray<TypeOf<T>>>,
     what?: keyof TypeOf<T>[],
@@ -91,5 +91,3 @@ const makeWithScheme = <T extends TypeC<any>>(scheme: T, table: string) => {
     },
   };
 };
-
-export { makeWithScheme };

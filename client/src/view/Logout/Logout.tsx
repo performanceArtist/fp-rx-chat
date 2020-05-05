@@ -1,10 +1,10 @@
 import React, { FC } from 'react';
 
-type Props = {
+type LogoutProps = {
   onLogout: () => void;
 };
 
-const Logout: FC<Props> = props => {
+export const Logout: FC<LogoutProps> = props => {
   const { onLogout } = props;
 
   return (
@@ -13,5 +13,3 @@ const Logout: FC<Props> = props => {
     </button>
   );
 };
-
-export { Logout };

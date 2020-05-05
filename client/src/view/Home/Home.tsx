@@ -6,15 +6,15 @@ import { Request } from 'api/request';
 import { Chat } from 'models/chat';
 import { combineReaders } from 'utils';
 
-import { ChatContainer } from '../ChatLayout/ChatLayoutContainer';
+import { ChatLayoutContainer } from '../ChatLayout/ChatLayoutContainer';
 import './Home.scss';
 
-type Props = {
+type HomeProps = {
   chats: Request<Chat[]>;
 };
 
-export const Home = combineReaders(ChatContainer, ChatContainer =>
-  memo<Props>(props => {
+export const Home = combineReaders(ChatLayoutContainer, ChatLayoutContainer =>
+  memo<HomeProps>(props => {
     const { chats } = props;
     const [currentChat, setCurrentChat] = useState<Chat>();
 
@@ -32,7 +32,7 @@ export const Home = combineReaders(ChatContainer, ChatContainer =>
             ))}
           </div>
           <div className="home__content">
-            {currentChat && <ChatContainer chatInfo={currentChat} />}
+            {currentChat && <ChatLayoutContainer chatInfo={currentChat} />}
           </div>
         </div>
       );

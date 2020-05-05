@@ -15,13 +15,13 @@ type AuthorizedContainerDeps = {
 
 export const AuthorizedContainer = combineReaders(
   ask<AuthorizedContainerDeps>(),
-  implode(Authorized, 'chatModel', 'messageModel', 'socketClient'),
+  implode(Authorized, 'chatModel', 'messageModel'),
   (deps, Authorized) => () => {
     const { api, socketURL } = deps;
-    const chatModel = createChatModel({ api })();
-    const messageModel = createMessageModel({ api })();
     const socketClient = createSocketClient(socketURL);
+    const chatModel = createChatModel({ api, socketClient })();
+    const messageModel = createMessageModel({ api, socketClient })();
 
-    return Authorized({ chatModel, messageModel, socketClient });
+    return Authorized({ chatModel, messageModel });
   },
 );

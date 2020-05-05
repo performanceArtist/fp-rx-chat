@@ -19,16 +19,15 @@ type ChatData = {
   messages: MessageType[];
 };
 
-type Props = {
+type ChatLayoutProps = {
   chatInfo: Chat;
   chatData: Request<ChatData>;
-  socketMessages: MessageType[];
   sendMessage: (message: SendMessageType, room: string) => void;
   joinRoom: (room: string) => void;
 };
 
-const Chat: FC<Props> = props => {
-  const { chatInfo, chatData, socketMessages, sendMessage, joinRoom } = props;
+export const ChatLayout: FC<ChatLayoutProps> = props => {
+  const { chatInfo, chatData, sendMessage, joinRoom } = props;
   const [message, onMessage] = useField('');
   const scrollToRef = useRef<HTMLDivElement>(null);
   const scrollTo = () => {
@@ -41,7 +40,7 @@ const Chat: FC<Props> = props => {
     }
   }, [chatData]);
 
-  useEffect(scrollTo, [chatData, socketMessages]);
+  useEffect(scrollTo, [chatData]);
 
   const renderSuccess = (data: ChatData) => {
     const { user, chatUsers, messages } = data;
@@ -53,7 +52,7 @@ const Chat: FC<Props> = props => {
         option.fold(() => '', pick('avatar')),
       );
     const sortedMessages = pipe(
-      messages.concat(socketMessages),
+      messages,
       array.sort(
         ord.contramap((message: MessageType) => message.timestamp)(ordNumber),
       ),
@@ -110,5 +109,3 @@ const Chat: FC<Props> = props => {
 
   return <AsyncData data={chatData} onSuccess={renderSuccess} />;
 };
-
-export { Chat };

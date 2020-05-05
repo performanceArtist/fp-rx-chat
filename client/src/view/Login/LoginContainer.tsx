@@ -9,10 +9,8 @@ type LoginContainerDeps = {
   authModel: AuthModel;
 };
 
-const LoginContainer = combineReaders(ask<LoginContainerDeps>(), deps => {
+export const LoginContainer = combineReaders(ask<LoginContainerDeps>(), deps => {
   const { authModel } = deps;
 
   return withDefaults(Login)(() => ({ loginRequest: authModel.login }));
 });
-
-export { LoginContainer };

@@ -3,14 +3,14 @@ import React, { FC } from 'react';
 import { Avatar } from '../Avatar/Avatar';
 import './Message.scss';
 
-type Props = {
+type MessageProps = {
   avatar: string;
   text: string;
   timestamp: number;
   isYours?: boolean;
 };
 
-const Message: FC<Props> = props => {
+export const Message: FC<MessageProps> = props => {
   const { avatar, text, isYours } = props;
 
   if (isYours) {
@@ -31,5 +31,3 @@ const Message: FC<Props> = props => {
     </div>
   );
 };
-
-export { Message };

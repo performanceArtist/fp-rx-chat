@@ -8,15 +8,15 @@ import { Preloader } from 'ui/Preloader/Preloader';
 import { LoginContainer } from 'view/Login/LoginContainer';
 import { AuthorizedContainer } from 'view/Authorized/AuthorizedContainer';
 
-type Props = {
+type AppProps = {
   user: Request<User>;
 };
 
-const App = combineReaders(
+export const App = combineReaders(
   LoginContainer,
   AuthorizedContainer,
   (LoginContainer, AuthorizedContainer) =>
-    memo<Props>(props => {
+    memo<AppProps>(props => {
       const { user } = props;
 
       if (isPending(user)) {
@@ -40,5 +40,3 @@ const App = combineReaders(
       return <HashRouter>{routes}</HashRouter>;
     }),
 );
-
-export { App };

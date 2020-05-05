@@ -2,11 +2,11 @@ import React, { FC } from 'react';
 
 import './Avatar.scss';
 
-type Props = {
+type AvatarProps = {
   image: string;
 }
 
-const Avatar: FC<Props> = props => {
+export const Avatar: FC<AvatarProps> = props => {
   const { image } = props;
 
   return (
@@ -15,5 +15,3 @@ const Avatar: FC<Props> = props => {
     </div>
   )
 }
-
-export { Avatar };

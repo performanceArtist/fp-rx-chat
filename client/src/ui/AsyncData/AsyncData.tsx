@@ -3,13 +3,13 @@ import { Request, isPending, isFailure } from 'api/request';
 
 import { Preloader } from '../Preloader/Preloader';
 
-type Props<T> = {
+type AsyncDataProps<T> = {
   data: Request<T>;
   onSuccess: (result: T) => JSX.Element;
   onError?: () => JSX.Element;
 };
 
-export function AsyncData<T>(props: Props<T>) {
+export function AsyncData<T>(props: AsyncDataProps<T>) {
   const { data, onSuccess, onError } = props;
 
   if (isPending(data)) {

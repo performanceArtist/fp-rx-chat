@@ -1,25 +1,23 @@
 import { ask } from 'fp-ts/lib/Reader';
 import { pipe } from 'fp-ts/lib/pipeable';
 
-import { SocketClient } from 'api/sockets';
 import { combineReaders, useObservable, withDefaults } from 'utils';
 import { pending, combine, asyncMap } from 'api/request';
 import { ChatModel } from 'models/chat';
-import { MessageModel, SendMessageType } from 'models/message';
+import { MessageModel } from 'models/message';
 import { UserModel } from 'models/user';
 
-import { Chat } from './ChatLayout';
+import { ChatLayout } from './ChatLayout';
 
 type ChatContainerDeps = {
   userModel: UserModel;
   chatModel: ChatModel;
   messageModel: MessageModel;
-  socketClient: SocketClient;
 };
 
-const ChatContainer = combineReaders(ask<ChatContainerDeps>(), deps =>
-  withDefaults(Chat)(props => {
-    const { userModel, chatModel, messageModel, socketClient } = deps;
+export const ChatLayoutContainer = combineReaders(ask<ChatContainerDeps>(), deps =>
+  withDefaults(ChatLayout)(props => {
+    const { userModel, chatModel, messageModel } = deps;
     const {
       chatInfo: { id: chatID },
     } = props;
@@ -37,16 +35,11 @@ const ChatContainer = combineReaders(ask<ChatContainerDeps>(), deps =>
       })),
     );
     const chatData = useObservable(chatData$, pending);
-    const socketMessages = useObservable(socketClient.messages$, []);
 
     return {
       chatData,
-      socketMessages,
-      sendMessage: (message: SendMessageType, room: string) =>
-        socketClient.emit('send', { message, room }),
-      joinRoom: socketClient.join,
+      sendMessage: messageModel.sendMessage,
+      joinRoom: chatModel.joinChat,
     };
   }),
 );
-
-export { ChatContainer };

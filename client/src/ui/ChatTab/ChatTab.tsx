@@ -3,13 +3,13 @@ import { Avatar } from '../Avatar/Avatar';
 
 import './ChatTab.scss';
 
-type Props = {
+type ChatTabProps = {
   name: string;
   avatar: string;
   onClick: () => void;
 };
 
-const ChatTab: FC<Props> = props => {
+export const ChatTab: FC<ChatTabProps> = props => {
   const { name, avatar, onClick } = props;
 
   return (
@@ -21,5 +21,3 @@ const ChatTab: FC<Props> = props => {
     </div>
   );
 };
-
-export { ChatTab };

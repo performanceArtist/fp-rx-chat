@@ -4,7 +4,7 @@ import { User } from 'models/user';
 import { Request } from 'api/request';
 import { AsyncData } from 'ui/AsyncData/AsyncData';
 
-type Props = {
+type ProfileProps = {
   user: Request<User>;
 };
 
@@ -20,10 +20,8 @@ const renderSuccess = (user: User) => {
   );
 };
 
-const Profile: FC<Props> = props => {
+export const Profile: FC<ProfileProps> = props => {
   const { user } = props;
 
   return <AsyncData data={user} onSuccess={renderSuccess} />;
 };
-
-export { Profile };

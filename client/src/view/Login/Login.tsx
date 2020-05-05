@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { memo } from 'react';
 
 import { useField } from 'utils';
 
@@ -7,11 +7,11 @@ export type LoginQuery = {
   password: string;
 };
 
-type Props = {
+type LoginProps = {
   loginRequest: (user: LoginQuery) => void;
 };
 
-const Login: React.FC<Props> = props => {
+export const Login = memo<LoginProps>(props => {
   const [username, onUsername] = useField('');
   const [password, onPassword] = useField('');
   const { loginRequest } = props;
@@ -39,6 +39,4 @@ const Login: React.FC<Props> = props => {
       <button type="submit">Submit</button>
     </form>
   );
-};
-
-export { Login };
+});

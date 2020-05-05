@@ -10,7 +10,7 @@ type ProfileContainerDeps = {
   userModel: UserModel;
 };
 
-const ProfileContainer = combineReaders(ask<ProfileContainerDeps>(), deps => {
+export const ProfileContainer = combineReaders(ask<ProfileContainerDeps>(), deps => {
   const { userModel } = deps;
 
   return withDefaults(Profile)(() => {
@@ -19,5 +19,3 @@ const ProfileContainer = combineReaders(ask<ProfileContainerDeps>(), deps => {
     return { user };
   });
 });
-
-export { ProfileContainer };

@@ -5,7 +5,7 @@ import { LogoutContainer } from 'view/Logout/LogoutContainer';
 
 import './Layout.scss';
 
-const Layout = combineReaders(LogoutContainer, Logout =>
+export const Layout = combineReaders(LogoutContainer, Logout =>
   memo(props => {
     const { children } = props;
 
@@ -20,5 +20,3 @@ const Layout = combineReaders(LogoutContainer, Logout =>
     );
   }),
 );
-
-export { Layout };
