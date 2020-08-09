@@ -1,11 +1,11 @@
 import React, { FC } from 'react';
 
-import { Request } from 'api/request';
 import { AsyncData } from 'ui/AsyncData/AsyncData';
 import { User } from 'shared/types';
+import { RequestResult } from 'api/request';
 
 type ProfileProps = {
-  user: Request<User>;
+  user: RequestResult<User>;
 };
 
 const renderSuccess = (user: User) => {

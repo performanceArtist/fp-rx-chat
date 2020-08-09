@@ -1,4 +1,4 @@
-import { ask } from 'fp-ts/lib/Reader';
+import { either, reader } from 'fp-ts';
 
 import { ChatModel } from 'models/chat';
 import { combineReaders } from 'shared/utils';
@@ -11,11 +11,15 @@ type HomeDeps = {
   chatModel: ChatModel;
 };
 
-export const HomeContainer = combineReaders(ask<HomeDeps>(), Home, (deps, Home) => {
-  return withDefaults(Home)(() => {
-    const { chatModel } = deps;
-    const chats = useObservable(chatModel.chats$, pending);
+export const HomeContainer = combineReaders(
+  reader.ask<HomeDeps>(),
+  Home,
+  (deps, Home) => {
+    return withDefaults(Home)(() => {
+      const { chatModel } = deps;
+      const chats = useObservable(chatModel.chats$, either.left(pending));
 
-    return { chats };
-  });
-});
+      return { chats };
+    });
+  },
+);

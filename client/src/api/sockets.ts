@@ -21,7 +21,7 @@ export type SocketClient = {
   emit: (what: string, data: any) => void;
 };
 
-export function createSocketClient(url: string): SocketClient {
+export const createSocketClient = (url: string) => (): SocketClient => {
   const socket = new Socket<SocketMessage, 'message'>();
   const io = new SocketIOInterface<SocketMessage, 'message'>(url);
   socket.init(io);
@@ -50,6 +50,6 @@ export function createSocketClient(url: string): SocketClient {
   return {
     subscribe,
     join,
-    emit: io.emit
+    emit: io.emit,
   };
-}
+};

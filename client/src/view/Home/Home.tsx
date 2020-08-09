@@ -2,7 +2,7 @@ import React, { useState, memo } from 'react';
 
 import { ChatTab } from 'ui/ChatTab/ChatTab';
 import { AsyncData } from 'ui/AsyncData/AsyncData';
-import { Request } from 'api/request';
+import { RequestResult } from 'api/request';
 import { combineReaders } from 'shared/utils';
 import { Chat } from 'shared/types';
 
@@ -10,7 +10,7 @@ import { ChatLayoutContainer } from '../ChatLayout/ChatLayoutContainer';
 import './Home.scss';
 
 type HomeProps = {
-  chats: Request<Chat[]>;
+  chats: RequestResult<Chat[]>;
 };
 
 export const Home = combineReaders(ChatLayoutContainer, ChatLayoutContainer =>

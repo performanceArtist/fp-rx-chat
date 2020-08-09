@@ -1,15 +1,10 @@
 import { Observable, merge } from 'rxjs';
-import {
-  switchMap,
-  startWith,
-  map,
-  distinctUntilChanged,
-} from 'rxjs/operators';
-import { ask } from 'fp-ts/lib/Reader';
+import { distinctUntilChanged, startWith } from 'rxjs/operators';
 import { pipe } from 'fp-ts/lib/pipeable';
+import { either, reader } from 'fp-ts';
+import { observable } from 'fp-ts-rxjs';
 
 import { combineReaders, createHandler } from 'shared/utils';
-import { isSuccess } from 'api/request';
 import { Api } from 'api/api';
 
 type AuthStatus = 'unknown' | 'login' | 'logout';
@@ -31,20 +26,30 @@ type AuthModelDeps = {
 };
 
 export const createAuthModel = combineReaders(
-  ask<AuthModelDeps>(),
+  reader.ask<AuthModelDeps>(),
   ({ api }): CreateAuthModel => () => {
     const [login$, loginHandle] = createHandler<LoginQuery>();
     const loginRequest$: Observable<AuthStatus> = pipe(
       login$,
-      switchMap(query => api.post('login', { query })),
-      map(request => (isSuccess(request) ? 'login' : 'unknown')),
+      observable.chain(query => api.post('login', { query })),
+      observable.map(
+        either.fold(
+          () => 'unknown',
+          () => 'login',
+        ),
+      ),
     );
 
     const [logout$, logoutHandle] = createHandler();
     const logoutRequest$: Observable<AuthStatus> = pipe(
       logout$,
-      switchMap(() => api.post('logout')),
-      map(request => (isSuccess(request) ? 'logout' : 'unknown')),
+      observable.chain(() => api.post('logout')),
+      observable.map(
+        either.fold(
+          () => 'unknown',
+          () => 'logout',
+        ),
+      ),
     );
 
     const authStatus$: Observable<AuthStatus> = pipe(

@@ -1,15 +1,16 @@
-import React, { memo, useMemo, createElement } from 'react';
+import React, { memo, createElement, useCallback } from 'react';
 import { Route, Switch, HashRouter, Redirect } from 'react-router-dom';
 
 import { combineReaders } from 'shared/utils';
 import { User } from 'models/user';
-import { Request, isPending, isSuccess } from 'api/request';
+import { RequestResult } from 'api/request';
 import { Preloader } from 'ui/Preloader/Preloader';
 import { LoginContainer } from 'view/Login/LoginContainer';
 import { AuthorizedContainer } from 'view/Authorized/AuthorizedContainer';
+import { AsyncDataRenderer } from 'ui/AsyncData/AsyncData';
 
 type AppProps = {
-  user: Request<User>;
+  user: RequestResult<User>;
 };
 
 export const App = combineReaders(
@@ -19,24 +20,30 @@ export const App = combineReaders(
     memo<AppProps>(props => {
       const { user } = props;
 
-      if (isPending(user)) {
-        return <Preloader />;
-      }
-
-      const isAuthenticated = isSuccess(user);
-      const routes = useMemo(
-        () =>
-          isAuthenticated ? (
-            createElement(AuthorizedContainer())
-          ) : (
+      const renderPending = useCallback(() => <Preloader />, []);
+      const renderError = useCallback(
+        () => (
+          <HashRouter>
             <Switch>
               <Route path="/login" component={LoginContainer} />
               <Redirect to="/login" />
             </Switch>
-          ),
-        [isAuthenticated],
+          </HashRouter>
+        ),
+        [],
+      );
+      const renderSuccess = useCallback(
+        () => <HashRouter>{createElement(AuthorizedContainer())}</HashRouter>,
+        [],
       );
 
-      return <HashRouter>{routes}</HashRouter>;
+      return (
+        <AsyncDataRenderer
+          data={user}
+          onPending={renderPending}
+          onError={renderError}
+          onSuccess={renderSuccess}
+        />
+      );
     }),
 );

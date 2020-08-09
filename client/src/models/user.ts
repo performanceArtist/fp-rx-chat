@@ -1,12 +1,13 @@
-import { shareReplay, switchMap } from 'rxjs/operators';
-import { ask } from 'fp-ts/lib/Reader';
+import { shareReplay } from 'rxjs/operators';
+import { reader } from 'fp-ts';
 import * as t from 'io-ts';
 import { pipe } from 'fp-ts/lib/pipeable';
+import { observable } from 'fp-ts-rxjs';
 
 import { combineReaders } from 'shared/utils';
 import { Api } from 'api/api';
 import { AuthModel } from './auth';
-import { RequestStream } from 'api/request';
+import { Request } from 'api/request';
 
 const UserScheme = t.type({
   id: t.number,
@@ -23,18 +24,19 @@ type UserModelDeps = {
 };
 
 export type UserModel = {
-  user$: RequestStream<User>;
+  user$: Request<User>;
 };
 
 type CreateUserModel = () => UserModel;
 
 export const createUserModel = combineReaders(
-  ask<UserModelDeps>(),
+  reader.ask<UserModelDeps>(),
   (deps): CreateUserModel => () => {
     const { api, authModel } = deps;
+
     const user$ = pipe(
       authModel.authStatus$,
-      switchMap(() => api.get('user/me', { scheme: UserScheme })),
+      observable.chain(() => api.get('user/me', { scheme: UserScheme })),
       shareReplay(1),
     );
 

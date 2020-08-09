@@ -1,4 +1,4 @@
-import { ask } from 'fp-ts/lib/Reader';
+import { reader } from 'fp-ts';
 
 import { AuthModel } from 'models/auth';
 import { combineReaders, withDefaults } from 'shared/utils';
@@ -9,8 +9,11 @@ type LoginContainerDeps = {
   authModel: AuthModel;
 };
 
-export const LoginContainer = combineReaders(ask<LoginContainerDeps>(), deps => {
-  const { authModel } = deps;
+export const LoginContainer = combineReaders(
+  reader.ask<LoginContainerDeps>(),
+  deps => {
+    const { authModel } = deps;
 
-  return withDefaults(Login)(() => ({ loginRequest: authModel.login }));
-});
+    return withDefaults(Login)(() => ({ loginRequest: authModel.login }));
+  },
+);

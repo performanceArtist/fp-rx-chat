@@ -1,71 +1,89 @@
-import { of } from 'rxjs';
+import { of, Observable } from 'rxjs';
 import { ajax, AjaxRequest, AjaxError } from 'rxjs/ajax';
-import { map, catchError } from 'rxjs/operators';
+import { catchError } from 'rxjs/operators';
 import { Type, TypeOf } from 'io-ts';
-import { isLeft } from 'fp-ts/lib/Either';
+import { isLeft, Either } from 'fp-ts/lib/Either';
+import { either } from 'fp-ts';
+import { pipe } from 'fp-ts/lib/pipeable';
+import { observable } from 'fp-ts-rxjs';
 
-import { RequestStream, failure, success } from './request';
+import { Pending } from './request';
+
+type ApiDeps = {
+  baseURL: string;
+  defaults: AjaxRequest;
+};
 
 type RequestOptions<S extends Type<any> = never> = {
   query?: any;
   scheme?: S;
 };
 
-const getQueryString = (query: any) => {
-  return Object.entries(query)
-    .map(([key, value]) => `${key}=${value}`)
-    .join('&');
+export type Api = {
+  get: <S extends Type<any>>(
+    url: string,
+    options?: RequestOptions<S>,
+  ) => Observable<Either<Error | Pending, TypeOf<S>>>;
+  post: <S extends Type<any>>(
+    url: string,
+    options?: RequestOptions<S>,
+  ) => Observable<Either<Error | Pending, TypeOf<S>>>;
 };
 
-export class Api {
-  constructor(private baseURL: string, private defaults?: AjaxRequest) {}
+export const createApi = (e: ApiDeps) => (): Api => {
+  const { baseURL, defaults } = e;
 
-  public request<S extends Type<any>>(
+  const request = <S extends Type<any>>(
     url: string,
     options: AjaxRequest,
     scheme?: S,
-  ) {
-    return ajax({
-      url: `${this.baseURL}${url}`,
-      ...this.defaults,
-      ...options,
-    }).pipe(
-      map(({ response }) => {
+  ) =>
+    pipe(
+      ajax({
+        url: `${baseURL}${url}`,
+        ...defaults,
+        ...options,
+      }),
+      observable.map(({ response }) => {
         if (!scheme) {
-          return success(response);
+          return either.right(response);
         }
 
-        const data = scheme.decode(response);
+        const decoded = scheme.decode(response);
 
-        if (isLeft(data)) {
-          console.error(data.left);
+        if (isLeft(decoded)) {
+          console.error(decoded.left);
         }
 
-        return isLeft(data)
-          ? failure(new Error(data.left.toString()))
-          : success(data.right);
+        return pipe(
+          decoded,
+          either.mapLeft(errors => new Error(errors.toString())),
+        );
       }),
       catchError((error: AjaxError) =>
-        of(failure(new Error(String(error.message)))),
+        of(either.left(new Error(String(error.message)))),
       ),
     );
-  }
 
-  private withMethod = (method: 'POST' | 'GET') => <S extends Type<any>>(
+  const getQueryString = (query: any) => {
+    return Object.entries(query)
+      .map(([key, value]) => `${key}=${value}`)
+      .join('&');
+  };
+
+  const withMethod = (method: 'POST' | 'GET') => <S extends Type<any>>(
     url: string,
     options?: RequestOptions<S>,
-  ): RequestStream<TypeOf<S>> => {
+  ): Observable<Either<Error | Pending, TypeOf<S>>> => {
     if (!options) {
-      return this.request(url, { method });
+      return request(url, { method });
     }
-    console.log('REQUEST', url, options);
     const { query, scheme } = options;
     const finalURL =
       method === 'GET' && query ? `${url}?${getQueryString(query)}` : url;
 
-    return this.request(finalURL, { method, body: query }, scheme);
+    return request(finalURL, { method, body: query }, scheme);
   };
 
-  public get = this.withMethod('GET');
-  public post = this.withMethod('POST');
-}
+  return { get: withMethod('GET'), post: withMethod('POST') };
+};

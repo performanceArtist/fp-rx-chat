@@ -1,4 +1,4 @@
-import { ask } from 'fp-ts/lib/Reader';
+import { reader } from 'fp-ts';
 
 import { combineReaders, implode } from 'shared/utils';
 import { createMessageModel } from 'models/message';
@@ -14,11 +14,11 @@ type AuthorizedContainerDeps = {
 };
 
 export const AuthorizedContainer = combineReaders(
-  ask<AuthorizedContainerDeps>(),
+  reader.ask<AuthorizedContainerDeps>(),
   implode(Authorized, 'chatModel', 'messageModel'),
   (deps, Authorized) => () => {
     const { api, socketURL } = deps;
-    const socketClient = createSocketClient(socketURL);
+    const socketClient = createSocketClient(socketURL)();
     const chatModel = createChatModel({ api, socketClient })();
     const messageModel = createMessageModel({ api, socketClient })();
 

@@ -1,4 +1,4 @@
-import { ask } from 'fp-ts/lib/Reader';
+import { either, reader } from 'fp-ts';
 
 import { combineReaders, withDefaults, useObservable } from 'shared/utils';
 import { pending } from 'api/request';
@@ -11,12 +11,12 @@ type AppContainerDeps = {
 };
 
 export const AppContainer = combineReaders(
-  ask<AppContainerDeps>(),
+  reader.ask<AppContainerDeps>(),
   App,
   (deps, App) =>
     withDefaults(App)(() => {
       const { userModel } = deps;
-      const user = useObservable(userModel.user$, pending);
+      const user = useObservable(userModel.user$, either.left(pending));
 
       return { user };
     }),

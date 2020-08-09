@@ -1,12 +1,13 @@
 import * as t from 'io-ts';
 import { shareReplay } from 'rxjs/operators';
-import { ask } from 'fp-ts/lib/Reader';
+import { reader } from 'fp-ts';
 import { pipe } from 'fp-ts/lib/pipeable';
+import { observableEither } from 'fp-ts-rxjs';
 
 import { combineReaders, pick } from 'shared/utils';
 import { Api } from 'api/api';
-import { RequestStream, asyncMap } from 'api/request';
 import { SocketClient } from 'api/sockets';
+import { Request } from 'api/request';
 
 import { User } from './user';
 
@@ -32,8 +33,8 @@ export type Chat = t.TypeOf<typeof ChatScheme>;
 export type UsersByChat = t.TypeOf<typeof ChatUsersScheme>;
 
 export type ChatModel = {
-  chats$: RequestStream<Chat[]>;
-  getUsersByChat: (chatID: number) => RequestStream<User[]>;
+  chats$: Request<Chat[]>;
+  getUsersByChat: (chatID: number) => Request<User[]>;
   joinChat: (room: string) => void;
 };
 
@@ -45,7 +46,7 @@ type ChatModelDeps = {
 };
 
 export const createChatModel = combineReaders(
-  ask<ChatModelDeps>(),
+  reader.ask<ChatModelDeps>(),
   (deps): CreateChatModel => () => {
     const { api, socketClient } = deps;
     const chats$ = pipe(
@@ -55,7 +56,7 @@ export const createChatModel = combineReaders(
     const getUsersByChat = (chatID: number) =>
       pipe(
         api.get('chat/users', { scheme: ChatUsersScheme, query: { chatID } }),
-        asyncMap(pick('users')),
+        observableEither.map(pick('users')),
         shareReplay(1),
       );
 

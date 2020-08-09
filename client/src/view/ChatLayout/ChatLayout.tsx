@@ -1,9 +1,9 @@
 import React, { FC, useEffect, useRef, FormEvent } from 'react';
 import { pipe } from 'fp-ts/lib/pipeable';
-import { array, option, ord } from 'fp-ts';
+import { array, option, ord, either } from 'fp-ts';
 import { ordNumber } from 'fp-ts/lib/Ord';
 
-import { Request, isSuccess } from 'api/request';
+import { RequestResult } from 'api/request';
 import { AsyncData } from 'ui/AsyncData/AsyncData';
 import { Message } from 'ui/Message/Message';
 import { pick, useField } from 'shared/utils';
@@ -11,7 +11,7 @@ import { User, Chat } from 'shared/types';
 
 import './ChatLayout.scss';
 
-type MessageType = {
+export type MessageType = {
   text: string;
   timestamp: number;
   user_id: number;
@@ -26,7 +26,7 @@ type ChatData = {
 
 type ChatLayoutProps = {
   chatInfo: Chat;
-  chatData: Request<ChatData>;
+  chatData: RequestResult<ChatData>;
   sendMessage: (message: MessageType, room: string) => void;
   joinRoom: (room: string) => void;
 };
@@ -40,7 +40,7 @@ export const ChatLayout: FC<ChatLayoutProps> = props => {
   };
 
   useEffect(() => {
-    if (isSuccess(chatData)) {
+    if (either.isRight(chatData)) {
       joinRoom(chatInfo.name);
     }
   }, [chatData]);
