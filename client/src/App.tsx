@@ -40,6 +40,7 @@ export const App = combineReaders(
       return (
         <AsyncDataRenderer
           data={user}
+          onInitial={renderPending}
           onPending={renderPending}
           onError={renderError}
           onSuccess={renderSuccess}
