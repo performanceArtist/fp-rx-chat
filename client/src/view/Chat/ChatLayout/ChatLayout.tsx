@@ -5,11 +5,11 @@ import { ordNumber } from 'fp-ts/lib/Ord';
 import { RequestResult, selector } from '@performance-artist/fp-ts-adt';
 import { pick } from '@performance-artist/fp-ts-adt/dist/utils';
 
-import { RequestState } from 'ui/RequestState/RequestState';
-import { Message } from 'ui/Message/Message';
+import { RequestState } from 'shared/ui/RequestState/RequestState';
+import { ChatMessage } from 'view/Chat/ChatMessage/ChatMessage';
 import { User } from 'shared/types';
 import './ChatLayout.scss';
-import { ChatMessageFormContainer } from 'view/ChatMessageForm/ChatMessageFormContainer';
+import { ChatMessageFormContainer } from 'view/Chat/ChatMessageForm/ChatMessageFormContainer';
 
 export type MessageType = {
   text: string;
@@ -58,7 +58,7 @@ export const ChatLayout = pipe(
 
       const renderedMessages = sortedMessages.map(
         ({ text, timestamp, user_id }) => (
-          <Message
+          <ChatMessage
             key={`${user_id} ${timestamp}`}
             text={text}
             timestamp={timestamp}
@@ -71,13 +71,13 @@ export const ChatLayout = pipe(
       const usernames = chatUsers.map(pick('username')).join(', ');
 
       return (
-        <div className="chat">
+        <div className="chat-layout">
           <h3>Users: {usernames}</h3>
-          <div className="chat__messages">
+          <div className="chat-layout__messages">
             {renderedMessages}
             <div ref={scrollToRef} />
           </div>
-          <div className="chat__input-container">
+          <div className="chat-layout__input-container">
             <ChatMessageFormContainer />
           </div>
         </div>

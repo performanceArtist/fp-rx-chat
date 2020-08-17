@@ -3,10 +3,10 @@ import { Route, Switch, HashRouter, Redirect } from 'react-router-dom';
 import { RequestResult, selector } from '@performance-artist/fp-ts-adt';
 import { pipe } from 'fp-ts/lib/pipeable';
 
-import { Preloader } from 'ui/Preloader/Preloader';
+import { Preloader } from 'shared/ui/Preloader/Preloader';
 import { LoginContainer } from 'view/Login/LoginContainer';
 import { Authorized } from 'view/Authorized/Authorized';
-import { RequestStateRenderer } from 'ui/RequestState/RequestState';
+import { RequestStateRenderer } from 'shared/ui/RequestState/RequestState';
 
 type AppProps = {
   user: RequestResult<unknown>;

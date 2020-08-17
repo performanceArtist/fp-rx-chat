@@ -1,7 +1,7 @@
 import React, { FC } from 'react';
 import { RequestResult } from '@performance-artist/fp-ts-adt';
 
-import { RequestState } from 'ui/RequestState/RequestState';
+import { RequestState } from 'shared/ui/RequestState/RequestState';
 import { User } from 'shared/types';
 
 type ProfileProps = {

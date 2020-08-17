@@ -6,13 +6,13 @@ import { useMemo } from 'react';
 
 import { chatStoreKey } from 'store/chat.store';
 import { useObservable, withProps, resolve } from 'shared/utils/react';
-import { Home } from './Home';
+import { Chat } from './Chat';
 import { createChatModel, chatModelKey } from 'model/chat/chat.model';
 
 const Container = pipe(
-  selector.combine(chatStoreKey, chatModelKey, Home),
-  selector.map(([chatStore, chatModel, Home]) =>
-    withProps(Home)(() => {
+  selector.combine(chatStoreKey, chatModelKey, Chat),
+  selector.map(([chatStore, chatModel, Chat]) =>
+    withProps(Chat)(() => {
       const chats = useObservable(chatStore.chats$, either.left(initial));
       const isChatLayoutShown = useObservable(
         pipe(chatModel.currentChat.out$, observable.map(option.isSome)),
@@ -28,7 +28,7 @@ const Container = pipe(
   ),
 );
 
-export const HomeContainer = pipe(
+export const ChatContainer = pipe(
   selector.combine(selector.defer(Container, 'chatModel'), createChatModel),
   selector.map(([Container, createChatModel]) =>
     resolve(Container, () => {

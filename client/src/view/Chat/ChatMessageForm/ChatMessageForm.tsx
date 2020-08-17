@@ -1,5 +1,7 @@
 import React, { memo, FormEvent } from 'react';
 
+import './ChatMessageForm.scss';
+
 type ChatMessageFormProps = {
   message: string;
   onMessageChange: (message: string) => void;
@@ -12,23 +14,13 @@ export const ChatMessageForm = memo<ChatMessageFormProps>(props => {
     event.preventDefault();
 
     onSubmit();
-    /*
-    sendMessage(
-      {
-        text: message,
-        timestamp: new Date().getTime(),
-        chat_id: chatInfo.id,
-        user_id: user.id,
-      },
-      chatInfo.name,
-    );*/
     onMessageChange('');
   };
 
   return (
-    <form onSubmit={handleSubmit}>
+    <form onSubmit={handleSubmit} className="chat-message-form">
       <input
-        className="chat__input"
+        className="chat-message-form__input"
         value={message}
         onChange={e => onMessageChange(e.target.value)}
         type="text"

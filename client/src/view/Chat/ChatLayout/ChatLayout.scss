@@ -1,4 +1,4 @@
-.chat {
+.chat-layout {
   width: 43rem;
 
   &__messages {
@@ -13,11 +13,5 @@
     padding: 1rem;
     border: 1px solid gray;
     border-radius: 0.2rem;
-  }
-
-  &__input {
-    padding: 0.5rem;
-    background: inherit;
-    border: none;
   }
 }

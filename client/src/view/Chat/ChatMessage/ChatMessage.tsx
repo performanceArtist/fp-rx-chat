@@ -3,17 +3,17 @@ import { Option } from 'fp-ts/lib/Option';
 import { option } from 'fp-ts';
 import { pipe } from 'fp-ts/lib/pipeable';
 
-import { Avatar } from '../Avatar/Avatar';
-import './Message.scss';
+import { Avatar } from 'shared/ui/Avatar/Avatar';
+import './ChatMessage.scss';
 
-type MessageProps = {
+type ChatMessageProps = {
   avatar: Option<string>;
   text: string;
   timestamp: number;
   isYours?: boolean;
 };
 
-export const Message: FC<MessageProps> = props => {
+export const ChatMessage: FC<ChatMessageProps> = props => {
   const { avatar, text, isYours } = props;
 
   const imageUrl = pipe(
@@ -23,9 +23,9 @@ export const Message: FC<MessageProps> = props => {
 
   if (isYours) {
     return (
-      <div className="message message_yours">
-        <div className="message__content">{text}</div>
-        <div className="message__avatar">
+      <div className="chat-message chat-message_yours">
+        <div className="chat-message__content">{text}</div>
+        <div className="chat-message__avatar">
           <Avatar image={imageUrl} />
         </div>
       </div>
@@ -33,11 +33,11 @@ export const Message: FC<MessageProps> = props => {
   }
 
   return (
-    <div className="message">
-      <div className="message__avatar">
+    <div className="chat-message">
+      <div className="chat-message__avatar">
         <Avatar image={imageUrl} />
       </div>
-      <div className="message__content">{text}</div>
+      <div className="chat-message__content">{text}</div>
     </div>
   );
 };
