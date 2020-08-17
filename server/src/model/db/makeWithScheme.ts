@@ -20,7 +20,7 @@ const makeDBQuery = (query: string, params: any[], once = false) => {
           }
         });
       }),
-    (error: Error) => {
+    (error: any) => {
       console.log(error);
       return error;
     },
@@ -43,7 +43,10 @@ type WithArray<T> = {
   [key in keyof T]: T[key][] | T[key];
 };
 
-export const makeWithScheme = <T extends TypeC<any>>(scheme: T, table: string) => {
+export const makeWithScheme = <T extends TypeC<any>>(
+  scheme: T,
+  table: string,
+) => {
   const makeSelect = <O extends boolean>(once: O) => (
     where: Partial<WithArray<TypeOf<T>>>,
     what?: keyof TypeOf<T>[],
@@ -55,7 +58,7 @@ export const makeWithScheme = <T extends TypeC<any>>(scheme: T, table: string) =
     const decode = once ? scheme.decode : IOArray(scheme).decode;
     const withError = flow(
       decode,
-      either.mapLeft(errors => new Error(failure(errors).join('\n'))),
+      either.mapLeft((errors) => new Error(failure(errors).join('\n'))),
     );
 
     return chainEitherK(withError)(data) as any;
@@ -69,7 +72,7 @@ export const makeWithScheme = <T extends TypeC<any>>(scheme: T, table: string) =
         ',',
       );
       const sql = `INSERT INTO ${table} values(${values})`;
-      const orderedValues = Object.keys(scheme.props).map(key => row[key]);
+      const orderedValues = Object.keys(scheme.props).map((key) => row[key]);
 
       return makeDBQuery(sql, orderedValues);
     },

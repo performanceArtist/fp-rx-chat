@@ -15,4 +15,5 @@ export type User = t.TypeOf<typeof UserScheme>;
 
 export const withUserScheme = makeWithScheme(UserScheme, 'user');
 
-export const comparePasswords = (candidate: string, actual: string) => candidate === actual;
+export const comparePasswords = (candidate: string, actual: string) =>
+  candidate === actual;

@@ -1,8 +1,8 @@
 import React, { FC } from 'react';
+import { RequestResult } from '@performance-artist/fp-ts-adt';
 
-import { AsyncData } from 'ui/AsyncData/AsyncData';
+import { RequestState } from 'ui/RequestState/RequestState';
 import { User } from 'shared/types';
-import { RequestResult } from 'api/request';
 
 type ProfileProps = {
   user: RequestResult<User>;
@@ -23,5 +23,5 @@ const renderSuccess = (user: User) => {
 export const Profile: FC<ProfileProps> = props => {
   const { user } = props;
 
-  return <AsyncData data={user} onSuccess={renderSuccess} />;
+  return <RequestState data={user} onSuccess={renderSuccess} />;
 };

@@ -1,22 +1,20 @@
-import React, { memo, createElement, useCallback } from 'react';
+import React, { memo, useCallback } from 'react';
 import { Route, Switch, HashRouter, Redirect } from 'react-router-dom';
+import { RequestResult, selector } from '@performance-artist/fp-ts-adt';
+import { pipe } from 'fp-ts/lib/pipeable';
 
-import { combineReaders } from 'shared/utils';
-import { User } from 'models/user';
-import { RequestResult } from 'api/request';
 import { Preloader } from 'ui/Preloader/Preloader';
 import { LoginContainer } from 'view/Login/LoginContainer';
-import { AuthorizedContainer } from 'view/Authorized/AuthorizedContainer';
-import { AsyncDataRenderer } from 'ui/AsyncData/AsyncData';
+import { Authorized } from 'view/Authorized/Authorized';
+import { RequestStateRenderer } from 'ui/RequestState/RequestState';
 
 type AppProps = {
-  user: RequestResult<User>;
+  user: RequestResult<unknown>;
 };
 
-export const App = combineReaders(
-  LoginContainer,
-  AuthorizedContainer,
-  (LoginContainer, AuthorizedContainer) =>
+export const App = pipe(
+  selector.combine(LoginContainer, Authorized),
+  selector.map(([LoginContainer, Authorized]) =>
     memo<AppProps>(props => {
       const { user } = props;
 
@@ -33,12 +31,16 @@ export const App = combineReaders(
         [],
       );
       const renderSuccess = useCallback(
-        () => <HashRouter>{createElement(AuthorizedContainer())}</HashRouter>,
+        () => (
+          <HashRouter>
+            <Authorized />
+          </HashRouter>
+        ),
         [],
       );
 
       return (
-        <AsyncDataRenderer
+        <RequestStateRenderer
           data={user}
           onInitial={renderPending}
           onPending={renderPending}
@@ -47,4 +49,5 @@ export const App = combineReaders(
         />
       );
     }),
+  ),
 );

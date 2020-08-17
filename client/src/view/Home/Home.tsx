@@ -1,43 +1,50 @@
-import React, { useState, memo } from 'react';
+import React, { memo } from 'react';
+import { pipe } from 'fp-ts/lib/pipeable';
+import { selector, RequestResult } from '@performance-artist/fp-ts-adt';
 
 import { ChatTab } from 'ui/ChatTab/ChatTab';
-import { AsyncData } from 'ui/AsyncData/AsyncData';
-import { RequestResult } from 'api/request';
-import { combineReaders } from 'shared/utils';
-import { Chat } from 'shared/types';
-
+import { RequestState } from 'ui/RequestState/RequestState';
 import { ChatLayoutContainer } from '../ChatLayout/ChatLayoutContainer';
 import './Home.scss';
 
-type HomeProps = {
-  chats: RequestResult<Chat[]>;
+type Chat = {
+  id: number;
+  name: string;
+  description: string;
+  avatar: string;
 };
 
-export const Home = combineReaders(ChatLayoutContainer, ChatLayoutContainer =>
-  memo<HomeProps>(props => {
-    const { chats } = props;
-    const [currentChat, setCurrentChat] = useState<Chat>();
+export type HomeProps = {
+  chats: RequestResult<Chat[]>;
+  onChatTabClick: (chatID: number) => void;
+  isChatLayoutShown: boolean;
+};
 
-    const renderSuccess = (chats: Chat[]) => {
-      return (
+export const Home = pipe(
+  ChatLayoutContainer,
+  selector.map(ChatLayoutContainer =>
+    memo<HomeProps>(props => {
+      const { chats, onChatTabClick, isChatLayoutShown } = props;
+
+      const renderSuccess = (chats: Chat[]) => (
         <div className="home">
           <div className="home__navigation">
             {chats.map(chat => (
               <ChatTab
                 name={chat.name}
                 avatar={chat.avatar}
-                onClick={() => setCurrentChat(chat)}
+                onClick={() => onChatTabClick(chat.id)}
                 key={chat.id}
               />
             ))}
           </div>
           <div className="home__content">
-            {currentChat && <ChatLayoutContainer chatInfo={currentChat} />}
+            {isChatLayoutShown && <ChatLayoutContainer />}
           </div>
         </div>
       );
-    };
 
-    return <AsyncData data={chats} onSuccess={renderSuccess} />;
-  }),
+      return <RequestState data={chats} onSuccess={renderSuccess} />;
+    }),
+  ),
 );

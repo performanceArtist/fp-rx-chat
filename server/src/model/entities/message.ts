@@ -7,7 +7,7 @@ export const MessageScheme = t.type({
   text: t.string,
   timestamp: t.number,
   user_id: t.number,
-  chat_id: t.number
+  chat_id: t.number,
 });
 
 export type Message = t.TypeOf<typeof MessageScheme>;

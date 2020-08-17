@@ -1,6 +1,6 @@
 import { Database } from 'sqlite3';
 
-export const db = new Database('src/model/db/db.sqlite3', error => {
+export const db = new Database('src/model/db/db.sqlite3', (error) => {
   if (error) {
     return console.error(error.message);
   }
@@ -16,7 +16,7 @@ export const db = new Database('src/model/db/db.sqlite3', error => {
     CONSTRAINT email_unique UNIQUE (email)
     CONSTRAINT uid UNIQUE (uid)
     )`,
-    err => {
+    (err) => {
       if (err) {
         return;
       } else {
@@ -49,7 +49,7 @@ export const db = new Database('src/model/db/db.sqlite3', error => {
     description text,
     avatar text
     )`,
-    err => {
+    (err) => {
       if (err) {
         return;
       } else {
@@ -69,7 +69,7 @@ export const db = new Database('src/model/db/db.sqlite3', error => {
     FOREIGN KEY(user_id) REFERENCES user(id),
     FOREIGN KEY(chat_id) REFERENCES chat(id)
     )`,
-    err => {
+    (err) => {
       if (err) {
         return;
       } else {
@@ -90,7 +90,7 @@ export const db = new Database('src/model/db/db.sqlite3', error => {
     FOREIGN KEY(user_id) REFERENCES user(id),
     FOREIGN KEY(chat_id) REFERENCES chat(id)
     )`,
-    err => {
+    (err) => {
       if (err) {
         return;
       } else {

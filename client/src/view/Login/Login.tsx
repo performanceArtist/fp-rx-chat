@@ -1,23 +1,18 @@
 import React, { memo } from 'react';
 
-import { useField } from 'shared/utils';
-
-export type LoginQuery = {
-  username: string;
-  password: string;
-};
-
 type LoginProps = {
-  loginRequest: (user: LoginQuery) => void;
+  onUsernameChange: (username: string) => void;
+  username: string;
+  onPasswordChange: (password: string) => void;
+  password: string;
+  onSubmit: () => void;
 };
 
 export const Login = memo<LoginProps>(props => {
-  const [username, onUsername] = useField('');
-  const [password, onPassword] = useField('');
-  const { loginRequest } = props;
+  const { username, onUsernameChange, password, onPasswordChange } = props;
   const onSubmit = (event: React.FormEvent) => {
     event.preventDefault();
-    loginRequest({ username, password });
+    props.onSubmit();
   };
 
   return (
@@ -27,14 +22,14 @@ export const Login = memo<LoginProps>(props => {
         name="username"
         type="text"
         value={username}
-        onChange={onUsername.change}
+        onChange={e => onUsernameChange(e.target.value)}
       />
       Password
       <input
         name="password"
         type="password"
         value={password}
-        onChange={onPassword.change}
+        onChange={e => onPasswordChange(e.target.value)}
       />
       <button type="submit">Submit</button>
     </form>

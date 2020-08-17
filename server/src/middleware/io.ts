@@ -8,7 +8,7 @@ import { withMessageScheme } from 'model/entities';
 export const startSocketIO = (server: Server) => {
   const io = socketIO(server, { path: '/user/io' });
 
-  io.on('connection', socket => {
+  io.on('connection', (socket) => {
     socket.on('subscribe', (room: string) => {
       console.log('Subscribe to ', room);
       socket.join(room);

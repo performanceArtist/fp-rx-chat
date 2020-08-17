@@ -1,23 +1,30 @@
-import { either, reader } from 'fp-ts';
+import { either } from 'fp-ts';
+import { pipe } from 'fp-ts/lib/pipeable';
+import { selector, initial } from '@performance-artist/fp-ts-adt';
+import { useMemo } from 'react';
 
-import { combineReaders, withDefaults, useObservable } from 'shared/utils';
-import { pending } from 'api/request';
-import { UserModel } from 'models/user';
-
+import { withProps, useObservable, resolve } from 'shared/utils/react';
 import { App } from './App';
+import { authModelKey, createAuthModel } from 'model/auth/auth.model';
 
-type AppContainerDeps = {
-  userModel: UserModel;
-};
-
-export const AppContainer = combineReaders(
-  reader.ask<AppContainerDeps>(),
-  App,
-  (deps, App) =>
-    withDefaults(App)(() => {
-      const { userModel } = deps;
-      const user = useObservable(userModel.user$, either.left(pending));
+const Container = pipe(
+  selector.combine(authModelKey, App),
+  selector.map(([authModel, App]) =>
+    withProps(App)(() => {
+      const user = useObservable(authModel.user$, either.left(initial));
 
       return { user };
     }),
+  ),
+);
+
+export const AppContainer = pipe(
+  selector.combine(selector.defer(Container, 'authModel'), createAuthModel),
+  selector.map(([Container, createAuthModel]) =>
+    resolve(Container, () => {
+      const authModel = useMemo(() => createAuthModel(), []);
+
+      return { authModel };
+    }),
+  ),
 );

@@ -11,4 +11,4 @@ export const withNumbers = (query: any, assert: string[]): Option<object> => {
   }, {} as any);
 
   return some({ ...query, ...numbers });
-}
+};

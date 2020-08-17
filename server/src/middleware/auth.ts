@@ -37,8 +37,8 @@ passport.use(
       pipe(
         withUserScheme.selectOne({ username }),
         bimap(
-          error => done(error),
-          user =>
+          (error) => done(error),
+          (user) =>
             comparePasswords(user.password, password)
               ? done(null, user)
               : done(new Error('Wrong password')),
@@ -50,11 +50,11 @@ passport.use(
 
 passport.serializeUser((user, done) => {
   Either.fold(
-    errors => {
+    (errors) => {
       console.log(errors);
       done(new Error('Invalid user'));
     },
-    user => {
+    (user) => {
       done(null, (user as any).uid);
     },
   )(UserScheme.decode(user));
@@ -64,8 +64,8 @@ passport.deserializeUser((uid: string, done) => {
   pipe(
     withUserScheme.selectOne({ uid }),
     bimap(
-      error => done(error),
-      flow(pick('id', 'username', 'avatar'), user => done(null, user)),
+      (error) => done(error),
+      flow(pick('id', 'username', 'avatar'), (user) => done(null, user)),
     ),
   )();
 });
@@ -87,7 +87,7 @@ export const useAuth = (app: Express) => {
 
   app.post('/login', (req, res) => {
     passport.authenticate('local', (_, user) => {
-      req.login(user, error => {
+      req.login(user, (error) => {
         if (error) {
           res.status(401).send(error);
         } else {

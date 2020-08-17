@@ -19,10 +19,10 @@ export const ChatRouter = Router();
 ChatRouter.get('/all', (req, res) => {
   pipe(
     either.fromNullable('No user id')(req.user?.id),
-    either.bimap(sendError(res), userID =>
+    either.bimap(sendError(res), (userID) =>
       pipe(
         getChatsByUser(userID),
-        taskEither.bimap(sendError(res)('Failed to get chats'), chats =>
+        taskEither.bimap(sendError(res)('Failed to get chats'), (chats) =>
           res.json(chats),
         ),
       )(),
@@ -33,12 +33,12 @@ ChatRouter.get('/all', (req, res) => {
 ChatRouter.get('/users', (req, res) => {
   pipe(
     validate.chatID(req.query),
-    either.bimap(sendError(res), chatID =>
+    either.bimap(sendError(res), (chatID) =>
       pipe(
         getUsersByChat(chatID),
         taskEither.bimap(
           sendError(res),
-          flow(array.map(pick('id', 'username', 'avatar')), users =>
+          flow(array.map(pick('id', 'username', 'avatar')), (users) =>
             res.json({ chatID, users }),
           ),
         ),
@@ -50,10 +50,10 @@ ChatRouter.get('/users', (req, res) => {
 ChatRouter.get('/messages', (req, res) => {
   pipe(
     validate.chatID(req.query),
-    either.bimap(sendError(res), chatID =>
+    either.bimap(sendError(res), (chatID) =>
       pipe(
         getMessages(chatID),
-        taskEither.bimap(sendError(res), messages => res.json(messages)),
+        taskEither.bimap(sendError(res), (messages) => res.json(messages)),
       )(),
     ),
   );
@@ -65,7 +65,7 @@ ChatRouter.post('/send/:room', (req, res) => {
 
   pipe(
     MessageScheme.decode(message),
-    either.bimap(sendError(res)('Invalid message'), message =>
+    either.bimap(sendError(res)('Invalid message'), (message) =>
       pipe(
         saveMessage(message),
         taskEither.bimap(sendError(res)('Failed to save a message'), () => {

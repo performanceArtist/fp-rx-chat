@@ -1,39 +1,33 @@
 import { observableEither, observable } from 'fp-ts-rxjs';
 import { sequenceS, sequenceT } from 'fp-ts/lib/Apply';
-import { either, reader } from 'fp-ts';
+import { either } from 'fp-ts';
 import { pipe } from 'fp-ts/lib/pipeable';
+import { selector, initial } from '@performance-artist/fp-ts-adt';
+import { useEffect } from 'react';
 
-import { combineReaders, useObservable, withDefaults } from 'shared/utils';
-import { pending, Request } from 'api/request';
-import { ChatModel } from 'models/chat';
-import { MessageModel, MessageType } from 'models/message';
-import { UserModel } from 'models/user';
-
+import { useObservable, withProps, useInputEffect } from 'shared/utils/react';
+import { MessageType } from 'api/socket-client';
+import { Request } from 'api/api-client';
 import { ChatLayout } from './ChatLayout';
+import { authModelKey } from 'model/auth/auth.model';
+import { chatModelKey } from 'model/chat/chat.model';
 
-type ChatContainerDeps = {
-  userModel: UserModel;
-  chatModel: ChatModel;
-  messageModel: MessageModel;
-};
-
-export const ChatLayoutContainer = combineReaders(
-  reader.ask<ChatContainerDeps>(),
-  deps =>
-    withDefaults(ChatLayout)(props => {
-      const { userModel, chatModel, messageModel } = deps;
-      const {
-        chatInfo: { id: chatID },
-      } = props;
+export const ChatLayoutContainer = pipe(
+  selector.combine(authModelKey, chatModelKey, ChatLayout),
+  selector.map(([authModel, chatModel, ChatLayout]) =>
+    withProps(ChatLayout)(() => {
+      const join = useInputEffect(chatModel.join);
+      useEffect(() => join(), []);
 
       const socketMessages$ = pipe(
-        messageModel.messages$,
+        chatModel.messages$,
         observable.map(either.right),
-      ) as Request<MessageType>;
+      ) as Request<MessageType[]>;
+
       const messages$ = pipe(
         sequenceT(observableEither.observableEither)(
           socketMessages$,
-          messageModel.getMessagesByChat(chatID),
+          chatModel.storedMessages$,
         ),
         observableEither.map(([socketMessages, storedMessages]) =>
           storedMessages.concat(socketMessages),
@@ -41,16 +35,15 @@ export const ChatLayoutContainer = combineReaders(
       );
 
       const chatData$ = sequenceS(observableEither.observableEither)({
-        user: userModel.user$,
-        chatUsers: chatModel.getUsersByChat(chatID),
+        user: authModel.user$,
+        chatUsers: chatModel.users$,
         messages: messages$,
       });
-      const chatData = useObservable(chatData$, either.left(pending));
+      const chatData = useObservable(chatData$, either.left(initial));
 
       return {
-        chatData,
-        sendMessage: messageModel.sendMessage,
-        joinRoom: chatModel.joinChat,
+        data: chatData,
       };
     }),
+  ),
 );

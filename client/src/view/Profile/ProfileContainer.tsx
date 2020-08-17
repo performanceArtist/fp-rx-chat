@@ -1,24 +1,18 @@
-import { either, reader } from 'fp-ts';
+import { either } from 'fp-ts';
+import { selector, initial } from '@performance-artist/fp-ts-adt';
+import { pipe } from 'fp-ts/lib/pipeable';
 
-import { UserModel } from 'models/user';
-import { combineReaders, withDefaults, useObservable } from 'shared/utils';
-
+import { withProps, useObservable } from 'shared/utils/react';
 import { Profile } from './Profile';
-import { pending } from 'api/request';
+import { authModelKey } from 'model/auth/auth.model';
 
-type ProfileContainerDeps = {
-  userModel: UserModel;
-};
-
-export const ProfileContainer = combineReaders(
-  reader.ask<ProfileContainerDeps>(),
-  deps => {
-    const { userModel } = deps;
-
-    return withDefaults(Profile)(() => {
-      const user = useObservable(userModel.user$, either.left(pending));
+export const ProfileContainer = pipe(
+  authModelKey,
+  selector.map(authModel =>
+    withProps(Profile)(() => {
+      const user = useObservable(authModel.user$, either.left(initial));
 
       return { user };
-    });
-  },
+    }),
+  ),
 );

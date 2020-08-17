@@ -16,7 +16,7 @@ useAuth(app);
 
 app.use(express.static(join(__dirname, 'static')));
 app.use('/user', UserRouter);
-app.use('/chat', ChatRouter)
+app.use('/chat', ChatRouter);
 
 export const server = http.createServer(app).listen(5000, () => {
   console.log('Listening on port 5000');

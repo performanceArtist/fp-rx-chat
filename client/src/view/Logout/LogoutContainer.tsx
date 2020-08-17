@@ -1,19 +1,17 @@
-import { reader } from 'fp-ts';
+import { selector } from '@performance-artist/fp-ts-adt';
+import { pipe } from 'fp-ts/lib/pipeable';
 
-import { combineReaders, withDefaults } from 'shared/utils';
-import { AuthModel } from 'models/auth';
-
+import { withProps, useInputEffect } from 'shared/utils/react';
+import { authModelKey } from 'model/auth/auth.model';
 import { Logout } from './Logout';
 
-type LogoutDeps = {
-  authModel: AuthModel;
-};
+export const LogoutContainer = pipe(
+  authModelKey,
+  selector.map(authModel =>
+    withProps(Logout)(() => {
+      const onLogout = useInputEffect(authModel.logout);
 
-export const LogoutContainer = combineReaders(
-  reader.ask<LogoutDeps>(),
-  deps => {
-    const { authModel } = deps;
-
-    return withDefaults(Logout)(() => ({ onLogout: authModel.logout }));
-  },
+      return { onLogout };
+    }),
+  ),
 );
