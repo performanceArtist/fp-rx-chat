@@ -1,5 +1,10 @@
 # Chat
 
+# Users
+
+BigChungmire/test
+sherk/test
+
 ## Architecture
 
 1. Outside world and the data sources(http, sockets) - transport layer. Knows how to initialize connections and how to receive data(perhaps with some very general validation).

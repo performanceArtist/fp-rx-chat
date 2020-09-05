@@ -1,9 +1,8 @@
-import { either } from 'fp-ts';
 import { pipe } from 'fp-ts/lib/pipeable';
-import { selector, initial } from '@performance-artist/fp-ts-adt';
+import { selector } from '@performance-artist/fp-ts-adt';
 import { useMemo } from 'react';
 
-import { withProps, useObservable, resolve } from 'shared/utils/react';
+import { withProps, resolve, useRequest } from 'shared/utils/react';
 import { App } from './App';
 import { authModelKey, createAuthModel } from 'model/auth/auth.model';
 
@@ -11,7 +10,7 @@ const Container = pipe(
   selector.combine(authModelKey, App),
   selector.map(([authModel, App]) =>
     withProps(App)(() => {
-      const user = useObservable(authModel.user$, either.left(initial));
+      const user = useRequest(authModel.user$);
 
       return { user };
     }),

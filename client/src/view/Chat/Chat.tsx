@@ -1,9 +1,9 @@
-import React, { memo } from 'react';
+import React from 'react';
 import { pipe } from 'fp-ts/lib/pipeable';
 import { selector, RequestResult } from '@performance-artist/fp-ts-adt';
 
 import { ChatTab } from './ChatTab/ChatTab';
-import { RequestState } from 'shared/ui/RequestState/RequestState';
+import { withData } from 'shared/utils/react';
 import { ChatLayoutContainer } from './ChatLayout/ChatLayoutContainer';
 import './Chat.scss';
 
@@ -23,10 +23,11 @@ export type ChatProps = {
 export const Chat = pipe(
   ChatLayoutContainer,
   selector.map(ChatLayoutContainer =>
-    memo<ChatProps>(props => {
-      const { chats, onChatTabClick, isChatLayoutShown } = props;
+    withData<ChatProps>()(['chats'], (data, props) => {
+      const { chats } = data;
+      const { onChatTabClick, isChatLayoutShown } = props;
 
-      const renderSuccess = (chats: Chat[]) => (
+      return (
         <div className="chat">
           <div className="chat__navigation">
             {chats.map(chat => (
@@ -43,8 +44,6 @@ export const Chat = pipe(
           </div>
         </div>
       );
-
-      return <RequestState data={chats} onSuccess={renderSuccess} />;
     }),
   ),
 );

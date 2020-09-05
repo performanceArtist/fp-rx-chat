@@ -10,16 +10,14 @@ import { ChatContainer } from 'view/Chat/ChatContainer';
 export const Authorized = pipe(
   selector.combine(Layout, ChatContainer, ProfileContainer),
   selector.map(([Layout, ChatContainer, ProfileContainer]) =>
-    memo(() => {
-      return (
-        <Layout>
-          <Switch>
-            <Route exact path="/" component={ChatContainer} />
-            <Route path="/profile" component={ProfileContainer} />
-            <Redirect to="/" />
-          </Switch>
-        </Layout>
-      );
-    }),
+    memo(() => (
+      <Layout>
+        <Switch>
+          <Route exact path="/" component={ChatContainer} />
+          <Route path="/profile" component={ProfileContainer} />
+          <Redirect to="/" />
+        </Switch>
+      </Layout>
+    )),
   ),
 );

@@ -1,6 +1,6 @@
 import React, { FC } from 'react';
 
-import { Avatar } from 'shared/ui/Avatar/Avatar';
+import { Avatar } from 'view/Chat/Avatar/Avatar';
 import './ChatTab.scss';
 
 type ChatTabProps = {

@@ -3,7 +3,7 @@ import { Option } from 'fp-ts/lib/Option';
 import { option } from 'fp-ts';
 import { pipe } from 'fp-ts/lib/pipeable';
 
-import { Avatar } from 'shared/ui/Avatar/Avatar';
+import { Avatar } from 'view/Chat/Avatar/Avatar';
 import './ChatMessage.scss';
 
 type ChatMessageProps = {

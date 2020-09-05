@@ -1,15 +1,15 @@
-import React, { FC } from 'react';
+import React from 'react';
 import { RequestResult } from '@performance-artist/fp-ts-adt';
 
-import { RequestState } from 'shared/ui/RequestState/RequestState';
 import { User } from 'shared/types';
+import { withData } from 'shared/utils/react';
 
 type ProfileProps = {
   user: RequestResult<User>;
 };
 
-const renderSuccess = (user: User) => {
-  const { username, avatar } = user;
+export const Profile = withData<ProfileProps>()(['user'], data => {
+  const { username, avatar } = data.user;
 
   return (
     <div className="profile">
@@ -18,10 +18,4 @@ const renderSuccess = (user: User) => {
       <img src={avatar} />
     </div>
   );
-};
-
-export const Profile: FC<ProfileProps> = props => {
-  const { user } = props;
-
-  return <RequestState data={user} onSuccess={renderSuccess} />;
-};
+});

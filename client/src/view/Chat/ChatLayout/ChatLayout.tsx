@@ -1,15 +1,15 @@
-import React, { useEffect, useRef } from 'react';
+import React from 'react';
 import { pipe } from 'fp-ts/lib/pipeable';
 import { array, option, ord } from 'fp-ts';
 import { ordNumber } from 'fp-ts/lib/Ord';
 import { RequestResult, selector } from '@performance-artist/fp-ts-adt';
 import { pick } from '@performance-artist/fp-ts-adt/dist/utils';
 
-import { RequestState } from 'shared/ui/RequestState/RequestState';
 import { ChatMessage } from 'view/Chat/ChatMessage/ChatMessage';
 import { User } from 'shared/types';
 import './ChatLayout.scss';
 import { ChatMessageFormContainer } from 'view/Chat/ChatMessageForm/ChatMessageFormContainer';
+import { useScroll, withData } from 'shared/utils/react';
 
 export type MessageType = {
   text: string;
@@ -18,29 +18,18 @@ export type MessageType = {
   chat_id: number;
 };
 
-type ChatData = {
-  user: User;
-  chatUsers: User[];
-  messages: MessageType[];
-};
-
 type ChatLayoutProps = {
-  data: RequestResult<ChatData>;
+  user: RequestResult<User>;
+  chatUsers: RequestResult<User[]>;
+  messages: RequestResult<MessageType[]>;
 };
 
 export const ChatLayout = pipe(
   ChatMessageFormContainer,
-  selector.map(ChatMessageFormContainer => (props: ChatLayoutProps) => {
-    const { data } = props;
-    const scrollToRef = useRef<HTMLDivElement>(null);
-    const scrollTo = () => {
-      scrollToRef.current && scrollToRef.current.scrollIntoView();
-    };
-
-    useEffect(scrollTo, [data]);
-
-    const renderSuccess = (data: ChatData) => {
+  selector.map(ChatMessageFormContainer =>
+    withData<ChatLayoutProps>()(['user', 'messages', 'chatUsers'], data => {
       const { user, chatUsers, messages } = data;
+      const scrollToRef = useScroll<HTMLDivElement>(undefined, [data]);
 
       const sortedMessages = pipe(
         messages,
@@ -82,8 +71,6 @@ export const ChatLayout = pipe(
           </div>
         </div>
       );
-    };
-
-    return <RequestState data={data} onSuccess={renderSuccess} />;
-  }),
+    }),
+  ),
 );

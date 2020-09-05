@@ -1,4 +1,4 @@
-import React, { memo } from 'react';
+import React, { memo, FormEvent } from 'react';
 
 type LoginProps = {
   onUsernameChange: (username: string) => void;
@@ -10,7 +10,7 @@ type LoginProps = {
 
 export const Login = memo<LoginProps>(props => {
   const { username, onUsernameChange, password, onPasswordChange } = props;
-  const onSubmit = (event: React.FormEvent) => {
+  const onSubmit = (event: FormEvent) => {
     event.preventDefault();
     props.onSubmit();
   };
