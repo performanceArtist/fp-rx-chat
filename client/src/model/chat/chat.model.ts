@@ -5,13 +5,14 @@ import { option, array, either } from 'fp-ts';
 import { flow } from 'fp-ts/lib/function';
 import { withLatestFrom, tap, shareReplay } from 'rxjs/operators';
 import { Observable } from 'rxjs';
-import { observable, observableEither } from 'fp-ts-rxjs';
+import { observable } from 'fp-ts-rxjs';
 
 import {
   createInput,
   Input,
   InputEffect,
   createInputEffect,
+  switchMapEither
 } from 'shared/utils/rxjs';
 import { chatStoreKey } from 'store/chat.store';
 import { messageStoreKey } from 'store/message.store';
@@ -72,7 +73,7 @@ export const createChatModel = pipe(
     const storedMessages$ = pipe(
       currentChat.out$,
       observable.map(either.fromOption(() => new Error('No chat selected'))),
-      observableEither.chain(currentChat =>
+      switchMapEither(currentChat =>
         messageStore.getMessagesByChat(currentChat.id),
       ),
     );
@@ -80,9 +81,7 @@ export const createChatModel = pipe(
     const users$ = pipe(
       currentChat.out$,
       observable.map(either.fromOption(() => new Error('No chat selected'))),
-      observableEither.chain(currentChat =>
-        chatStore.getUsersByChat(currentChat.id),
-      ),
+      switchMapEither(currentChat => chatStore.getUsersByChat(currentChat.id)),
     );
 
     const join = createInputEffect()(

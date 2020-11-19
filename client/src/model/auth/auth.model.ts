@@ -5,7 +5,7 @@ import { observable, observableEither } from 'fp-ts-rxjs';
 import {
   withLatestFrom,
   shareReplay,
-  distinctUntilChanged,
+  distinctUntilChanged, switchMap
 } from 'rxjs/operators';
 import { flow, identity } from 'fp-ts/lib/function';
 import { option, eq } from 'fp-ts';
@@ -48,14 +48,14 @@ export const createAuthModel = pipe(
     const login = createInputEffect()(
       flow(
         withLatestFrom(query$),
-        observable.chain(([_, query]) => userStore.login(query)),
+        switchMap(([_, query]) => userStore.login(query)),
         observableEither.map(() => authStatus.set(option.some('login'))),
       ),
     );
 
     const logout = createInputEffect()(
       flow(
-        observable.chain(userStore.logout),
+        switchMap(userStore.logout),
         observableEither.map(() => authStatus.set(option.some('logout'))),
       ),
     );
@@ -63,7 +63,7 @@ export const createAuthModel = pipe(
     const user$ = pipe(
       authStatus.out$,
       distinctUntilChanged(option.getEq(eq.eqString).equals),
-      observable.chain(userStore.getUser),
+      switchMap(userStore.getUser),
       shareReplay(1),
     );
 
