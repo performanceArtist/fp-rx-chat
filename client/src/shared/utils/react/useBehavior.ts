@@ -1,13 +1,5 @@
-import { IBehavior } from '../rxjs/createBehavior';
-import { useState, useEffect } from 'react';
+import { Behavior } from '@performance-artist/store';
+import { useObservable } from './useObservable';
 
-export const useBehavior = <T>(b: IBehavior<T>) => {
-  const [value, setValue] = useState(b.get());
-
-  useEffect(() => {
-    const subscription = b.out$.subscribe(setValue);
-    return () => subscription.unsubscribe();
-  }, []);
-
-  return value;
-};
+export const useBehavior = <T>(b: Behavior<T>) =>
+  useObservable(b.value$, b.get());

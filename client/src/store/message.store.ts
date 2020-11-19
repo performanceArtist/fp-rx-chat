@@ -3,6 +3,7 @@ import * as t from 'io-ts';
 import { Observable } from 'rxjs';
 import { pipe } from 'fp-ts/lib/pipeable';
 import { selector } from '@performance-artist/fp-ts-adt';
+import { makeMapStore } from '@performance-artist/store';
 
 import { apiClientKey, Request } from 'api/api-client';
 import { socketClientKey, MessageScheme, MessageType } from 'api/socket-client';
@@ -32,11 +33,15 @@ export const createMessageStore = pipe(
         startWith([]),
       );
 
+      const store = makeMapStore<number, Request<MessageType[]>>();
+
       const getMessagesByChat = (chatID: number) =>
-        apiClient.get('chat/messages', {
-          scheme: t.array(MessageScheme),
-          query: { chatID },
-        });
+        store.getOrElse(chatID, () =>
+          apiClient.get('chat/messages', {
+            scheme: t.array(MessageScheme),
+            query: { chatID },
+          }),
+        );
 
       const sendMessage = (message: MessageType, room: string) =>
         socketClient.emit('send', { message, room });

@@ -16,11 +16,10 @@ import {
   InputEffect,
   createInput,
   Input,
-  createBehavior,
-  IBehavior,
 } from 'shared/utils/rxjs';
 import { userStoreKey, User } from 'store/user.store';
 import { Request } from 'api/api-client';
+import { Behavior, behavior } from '@performance-artist/store';
 
 type AuthStatus = Option<'login' | 'logout'>;
 
@@ -29,7 +28,7 @@ export type AuthModel = {
   password: Input<string, string>;
   login: InputEffect<void>;
   logout: InputEffect<void>;
-  authStatus: IBehavior<AuthStatus>;
+  authStatus: Behavior<AuthStatus>;
   user$: Request<User>;
 };
 export const authModelKey = selector.key<AuthModel>()('authModel');
@@ -39,7 +38,7 @@ export const createAuthModel = pipe(
   selector.map(userStore => (): AuthModel => {
     const username = createInput<string>()(identity);
     const password = createInput<string>()(identity);
-    const authStatus = createBehavior<AuthStatus>(option.none);
+    const authStatus = behavior.of<AuthStatus>(option.none);
 
     const query$ = sequenceS(observable.observable)({
       username: username.out$,
@@ -61,7 +60,7 @@ export const createAuthModel = pipe(
     );
 
     const user$ = pipe(
-      authStatus.out$,
+      authStatus.value$,
       distinctUntilChanged(option.getEq(eq.eqString).equals),
       switchMap(userStore.getUser),
       shareReplay(1),

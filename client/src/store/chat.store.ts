@@ -4,6 +4,7 @@ import { pipe } from 'fp-ts/lib/pipeable';
 import { observableEither } from 'fp-ts-rxjs';
 import { selector } from '@performance-artist/fp-ts-adt';
 import { pick } from '@performance-artist/fp-ts-adt/dist/utils';
+import { makeMapStore } from '@performance-artist/store';
 
 import { socketClientKey } from 'api/socket-client';
 import { apiClientKey, Request } from 'api/api-client';
@@ -47,14 +48,18 @@ export const createChatStore = pipe(
         apiClient.get('chat/all', { scheme: t.array(ChatScheme) }),
         shareReplay(1),
       );
+      const store = makeMapStore<number, Request<User[]>>();
+
       const getUsersByChat = (chatID: number) =>
-        pipe(
-          apiClient.get('chat/users', {
-            scheme: ChatUsersScheme,
-            query: { chatID },
-          }),
-          observableEither.map(pick('users')),
-          shareReplay(1),
+        store.getOrElse(chatID, () =>
+          pipe(
+            apiClient.get('chat/users', {
+              scheme: ChatUsersScheme,
+              query: { chatID },
+            }),
+            observableEither.map(pick('users')),
+            shareReplay(1),
+          ),
         );
 
       const joinChat = (room: string) => socketClient.emit('subscribe', room);
